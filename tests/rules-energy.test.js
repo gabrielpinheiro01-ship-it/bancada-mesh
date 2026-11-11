@@ -242,7 +242,7 @@ test('toda correção aponta para peça do próprio slot e resolve o item (varre
           const fixed = applyFix(s, it.fix);
           const again = find(energyItems(fixed), it.id);
           // Correção de bateria sem opção que resolva (ex.: ESP32 em 20 dias) só melhora a autonomia.
-          const partial = it.fix.slot === 'bateria' && ['EN-03', 'EN-04'].includes(it.id)
+          const partial = ['bateria', 'placa'].includes(it.fix.slot) && ['EN-03', 'EN-04'].includes(it.id)
             && buildRuleCtx(fixed).energy.autonomyDays > buildRuleCtx(s).energy.autonomyDays;
           assert.ok(!again || again.level !== it.level || partial,
             `fix de ${it.id} não resolveu (${placa}/${bateria}/${carregador}/${painel}/${daysNoSun})`);
@@ -250,4 +250,38 @@ test('toda correção aponta para peça do próprio slot e resolve o item (varre
         }
       }
   assert.ok(checked > 20);
+});
+
+test('EN-04 ESP32 + 2x3500 + 20 dias: sugere a nRF52 (melhora) sem dizer que resolve', () => {
+  const it = find(energyItems(make({ placa: 'xiao-esp32s3-wio', bateria: 'bat-2x3500' }, { daysNoSun: '20' })), 'EN-04');
+  assert.equal(it.level, 'bad');
+  assert.equal(it.fix.slot, 'placa');
+  assert.equal(it.fix.partId, 'xiao-nrf52840-wio');
+  assert.match(it.why, /nRF52840, a mesma bateria daria ~19,8 dias, ainda abaixo/);
+  assert.doesNotMatch(it.why, /resolve/);
+});
+
+test('EN-04 ESP32 + 1x3500 + 20 dias: placa nRF52 (9,9 d) vence bateria 2x3500 (4,4 d)', () => {
+  const it = find(energyItems(make({ placa: 'xiao-esp32s3-wio', bateria: 'bat-1x3500' }, { daysNoSun: '20' })), 'EN-04');
+  assert.equal(it.fix.partId, 'xiao-nrf52840-wio');
+  assert.match(it.why, /daria ~9,9 dias/);
+});
+
+test('EN-04 ESP32 + 1x3500 + 9 dias: nRF52 atende e o texto diz isso', () => {
+  const it = find(energyItems(make({ placa: 'xiao-esp32s3-wio', bateria: 'bat-1x3500' })), 'EN-04');
+  assert.equal(it.fix.partId, 'xiao-nrf52840-wio');
+  assert.match(it.why, /daria ~9,9 dias, o que atende/);
+});
+
+test('valores menos conservadores: Problema rebaixado para Atenção ganha a frase com o resultado', () => {
+  // ESP32 + painel 1 W + hsp 7: EN-05 bad vira EN-06 warn, com a frase e "Problema"
+  const a = energyItems(make({ placa: 'xiao-esp32s3-wio', painel: 'painel-6v-1w', bateria: 'bat-2x3500' }, { hsp: '7' }));
+  const p = a.find((i) => i.slot === 'painel');
+  assert.equal(p.level, 'warn');
+  assert.match(p.why, /valores padrão da comunidade/);
+  assert.match(p.why, /daria Problema/);
+  // ESP32 + 2x3500 + 7 dias: EN-04 bad vira EN-03 warn
+  const b = find(energyItems(make({ placa: 'xiao-esp32s3-wio', bateria: 'bat-2x3500' }, { daysNoSun: '7' })), 'EN-03');
+  assert.equal(b.level, 'warn');
+  assert.match(b.why, /valores padrão da comunidade.*daria ~4,4 dias: Problema/);
 });

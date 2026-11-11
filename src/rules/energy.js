@@ -59,13 +59,12 @@ const hasBatteryPower = (ctx) => ctx.project?.power === 'battery' || ctx.project
  * conservadores que os padrões da comunidade, ou quando a placa tem amplificador (consumo incerto).
  */
 function ceiling(ctx, it, defaultsText) {
-  if (it.level !== 'ok') return it;
   let { level, why } = it;
   if (ctx.lessConservative) {
-    level = 'warn';
+    if (level === 'ok') level = 'warn';
     why += ` Com os valores padrão da comunidade (${DEFAULTS_TEXT}) daria ${defaultsText}.`;
   }
-  if (ctx.parts.placa?.pa) {
+  if (ctx.parts.placa?.pa && level === 'ok') {
     level = 'warn';
     why += ' Esta placa tem amplificador (PA) e gasta mais ao transmitir: meça o seu consumo antes de confiar na conta.';
   }
@@ -91,12 +90,30 @@ function batteryFix(ctx, N, baselineMah) {
   return pick ? { label: `Trocar por ${nameOf(pick.id)}`, slot: 'bateria', partId: pick.id } : undefined;
 }
 
-function boardSwapFix(ctx, N) {
+// Opção nRF52 do slot de placa (com LoRa e suportada) e quantos dias a bateria atual dura com ela.
+function nrfOption(ctx) {
   const mah = ctx.energy.batteryMah;
   const pick = optionsOf(ctx, 'placa')
     .map((id) => ({ id, a: attrsOf(id) }))
-    .find((c) => c.a.mcu === 'nrf52' && c.a.supported && c.a.hasLoRa && autonomyOf(mah, currentOfAttrs(c.a)) >= N);
-  return pick ? { label: `Trocar a placa por ${nameOf(pick.id)}`, slot: 'placa', partId: pick.id } : undefined;
+    .find((c) => c.a.mcu === 'nrf52' && c.a.supported && c.a.hasLoRa);
+  return pick ? { id: pick.id, days: autonomyOf(mah, currentOfAttrs(pick.a)) } : null;
+}
+
+// Correção de autonomia. Com ESP32, a troca para nRF52 vem primeiro quando melhora; entre opções
+// que não chegam a N fica a que dá mais dias.
+function autonomyFix(ctx, N) {
+  const e = ctx.energy;
+  const nrf = ctx.parts.placa?.mcu === 'esp32' ? nrfOption(ctx) : null;
+  const swap = nrf && nrf.days > e.autonomyDays
+    ? { fix: { label: `Trocar a placa por ${nameOf(nrf.id)}`, slot: 'placa', partId: nrf.id }, days: nrf.days } : null;
+  const bf = batteryFix(ctx, N, e.batteryMah);
+  const bat = bf ? { fix: bf, days: autonomyOf(mahOf(attrsOf(bf.partId)), e.currentMa) } : null;
+  let pick;
+  if (swap && swap.days >= N) pick = swap;
+  else if (bat && bat.days >= N) pick = bat;
+  else if (swap && bat) pick = swap.days >= bat.days ? swap : bat;
+  else pick = swap ?? bat;
+  return { fix: pick?.fix, nrfDays: nrf?.days ?? null };
 }
 
 function panelFix(ctx, needW) {
@@ -139,26 +156,25 @@ function autonomyRule(id, own) {
       const N = ctx.state.daysNoSun;
       const level = autonomyLevel(e.autonomyDays, N);
       if (level !== own) return null;
+      const atDef = autonomyLevel(e.atDefaults.autonomyDays, D.daysNoSun);
+      const defText = `~${f1(e.autonomyDays)} dias: ${WORD[atDef]} (para ${formatBR(D.daysNoSun, 0)} dias sem sol a bateria precisaria de cerca de ${f0(e.atDefaults.Cnec)} mAh e a sua tem ${f0(e.batteryMah)} mAh)`;
       const detail = `Com consumo de ${fn(e.currentMa)} mA e bateria de ${f0(e.batteryMah)} mAh, a conta dá cerca de ${f1(e.autonomyDays)} dias sem sol (você pediu ${fn(N)}).`;
       if (level === 'ok') {
-        const atDef = autonomyLevel(e.atDefaults.autonomyDays, D.daysNoSun);
-        const defText = `${WORD[atDef]} (para ${formatBR(D.daysNoSun, 0)} dias sem sol a bateria precisaria de cerca de ${f0(e.atDefaults.Cnec)} mAh e a sua tem ${f0(e.batteryMah)} mAh)`;
         return ceiling(ctx, item(this, ctx, 'ok', 'bateria', `Aguenta ~${f1(e.autonomyDays)} dias sem sol`,
           `${detail} É uma estimativa: meça o consumo real da sua placa antes de confiar.`), defText);
       }
-      let fix;
+      const { fix, nrfDays } = autonomyFix(ctx, N);
+      const nrfText = nrfDays == null ? ''
+        : nrfDays >= N ? ` Com a placa nRF52840, a mesma bateria daria ~${f1(nrfDays)} dias, o que atende.`
+          : ` Com a placa nRF52840, a mesma bateria daria ~${f1(nrfDays)} dias, ainda abaixo do que você pediu.`;
       if (level === 'warn') {
-        const swap = ctx.parts.placa?.mcu === 'esp32' ? boardSwapFix(ctx, N) : undefined;
-        fix = swap ?? batteryFix(ctx, N, e.batteryMah);
-        return item(this, ctx, 'warn', 'bateria', `Bateria no limite: ~${f1(e.autonomyDays)} dias sem sol`,
-          `${detail} Fica abaixo do que você precisa; é melhor pôr mais uma bateria em paralelo (as duas precisam estar com a mesma tensão, com diferença de até 0,05 V).`, fix);
+        return ceiling(ctx, item(this, ctx, 'warn', 'bateria', `Bateria no limite: ~${f1(e.autonomyDays)} dias sem sol`,
+          `${detail} Fica abaixo do que você precisa; é melhor pôr mais uma bateria em paralelo (as duas precisam estar com a mesma tensão, com diferença de até 0,05 V).${nrfText}`, fix), defText);
       }
-      const swap = ctx.parts.placa?.mcu === 'esp32' ? boardSwapFix(ctx, N) : undefined;
-      fix = swap ?? batteryFix(ctx, N, e.batteryMah);
       const why = ctx.parts.placa?.mcu === 'esp32'
-        ? `${detail} Falta bateria: placa ESP32 gasta de 4 a 8 vezes mais que a nRF52840, e por isso a bateria acaba rápido. A placa nRF52840 resolve com a mesma bateria.`
+        ? `${detail} Falta bateria: placa ESP32 gasta de 4 a 8 vezes mais que a nRF52840, e por isso a bateria acaba rápido.${nrfText}`
         : `${detail} Falta bateria para passar os dias sem sol.`;
-      return item(this, ctx, 'bad', 'bateria', `Falta bateria: só ~${f1(e.autonomyDays)} dias sem sol`, why, fix);
+      return ceiling(ctx, item(this, ctx, 'bad', 'bateria', `Falta bateria: só ~${f1(e.autonomyDays)} dias sem sol`, why, fix), defText);
     },
   };
 }
@@ -176,23 +192,23 @@ function panelRule(id, own) {
       if (kind !== id) return null;
       const w = `${fn(e.panelW)} W`;
       const nums = `Para ${fn(ctx.state.daysNoSun)} dias sem sol, o mínimo é ${formatBR(e.Pmin, 2)} W e o recomendado é ${formatBR(e.Prec, 2)} W.`;
+      const atDef = panelLevel(e.atDefaults, e.panelW);
+      const defText = `${WORD[atDef]} (o painel mínimo seria ${formatBR(e.atDefaults.Pmin, 2)} W e o recomendado ${formatBR(e.atDefaults.Prec, 2)} W)`;
       if (id === 'EN-08') {
-        const atDef = panelLevel(e.atDefaults, e.panelW);
-        const defText = `${WORD[atDef]} (o painel mínimo seria ${formatBR(e.atDefaults.Pmin, 2)} W e o recomendado ${formatBR(e.atDefaults.Prec, 2)} W)`;
         return ceiling(ctx, item(this, ctx, 'ok', 'painel', 'Painel dá conta',
           `O painel de ${w} atende a conta. ${nums}`), defText);
       }
       const fix = panelFix(ctx, e.Prec);
       if (id === 'EN-05') {
-        return item(this, ctx, level, 'painel', 'Painel fraco demais',
-          `O painel de ${w} não repõe nem o que a placa gasta em um dia de sol. A bateria só vai descarregar. ${nums}`, fix);
+        return ceiling(ctx, item(this, ctx, level, 'painel', 'Painel fraco demais',
+          `O painel de ${w} não repõe nem o que a placa gasta em um dia de sol. A bateria só vai descarregar. ${nums}`, fix), defText);
       }
       if (id === 'EN-06') {
-        return item(this, ctx, level, 'painel', 'Painel recarrega devagar',
-          `O painel de ${w} cobre o dia de sol, mas fica abaixo do mínimo. Depois de dias nublados, a bateria demora para voltar. ${nums}`, fix);
+        return ceiling(ctx, item(this, ctx, level, 'painel', 'Painel recarrega devagar',
+          `O painel de ${w} cobre o dia de sol, mas fica abaixo do mínimo. Depois de dias nublados, a bateria demora para voltar. ${nums}`, fix), defText);
       }
-      return item(this, ctx, level, 'painel', 'Painel sem margem',
-        `O painel de ${w} passa do mínimo, mas fica sem a margem de segurança de 20 a 30 %. ${nums}`, fix);
+      return ceiling(ctx, item(this, ctx, level, 'painel', 'Painel sem margem',
+        `O painel de ${w} passa do mínimo, mas fica sem a margem de segurança de 20 a 30 %. ${nums}`, fix), defText);
     },
   };
 }
