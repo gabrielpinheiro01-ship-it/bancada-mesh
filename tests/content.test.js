@@ -29,7 +29,7 @@ for (const [f, m] of Object.entries(mods)) for (const [k, v] of Object.entries(m
 }
 
 test('os módulos de conteúdo existem e têm texto', () => {
-  assert.deepEqual(files.sort(), ['after.js', 'alerts.js', 'config-notes.js', 'flash.js', 'install.js', 'steps.js']);
+  assert.deepEqual(files.sort(), ['after.js', 'alerts.js', 'config-notes.js', 'flash.js', 'install.js', 'shopping.js', 'steps.js']);
   assert.ok(all.length > 80);
 });
 

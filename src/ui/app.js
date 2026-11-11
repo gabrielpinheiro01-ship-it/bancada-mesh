@@ -4,6 +4,7 @@ import { createState } from '../core/state.js';
 import { PROJECTS } from '../data/projects.js';
 import { mountShell, stepOf, el } from './shell.js';
 import { renderProjectsStep } from './projects-step.js';
+import { renderPdfStep } from './pdf-step.js';
 
 let state = null;
 let shell = null;
@@ -29,8 +30,8 @@ export const renderers = {
   bancada(root, route) {
     root.replaceChildren(...marcador('Monte na bancada', `Passo 2 em construção (projeto ${route.projectId}).`));
   },
-  pdf(root) {
-    root.replaceChildren(...marcador('Baixe o PDF', 'Passo 3 em construção.'));
+  pdf(root, route, st) {
+    renderPdfStep(root, route, st);
   },
   aviso(root, route) {
     const emBreve = route.reason === 'em-breve';
