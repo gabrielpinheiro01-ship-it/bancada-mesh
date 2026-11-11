@@ -33,15 +33,17 @@ export const PROJECTS = deepFreeze({
     solder: false,
     solderLabel: 'sem solda',
     role: 'companion',
-    power: 'battery',
-    status: 'em-breve',
-    blockedBy: ['R1'],
+    // Bateria embutida no aparelho (sem carregador nem BMS escolhidos pela pessoa): as regras de proteção e de energia não se aplicam.
+    power: 'integrated',
+    status: 'pronto',
+    blockedBy: [],
     slots: {
       aparelho: { label: 'Aparelho', default: 'wio-l1-pro', alternatives: ['t1000e', 'wismesh-tag', 'wio-l2-pro'] },
     },
     locations: [],
-    drawings: [],
-    defaultDrawing: null,
+    // Sem fiação: um desenho genérico (aparelho pronto + celular por Bluetooth) serve para os três aparelhos.
+    drawings: [{ id: 'p1-aparelho', match: {} }],
+    defaultDrawing: 'p1-aparelho',
   },
   2: {
     id: 2,

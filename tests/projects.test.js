@@ -17,16 +17,22 @@ function filled(id) {
   return s;
 }
 
-test('há 7 projetos; prontos = 3 e 4; os demais em breve com lacuna', () => {
+test('há 7 projetos; prontos = 1, 3 e 4; os demais em breve com lacuna', () => {
   assert.deepEqual(ids, [1, 2, 3, 4, 5, 6, 7]);
-  assert.deepEqual(ready, [3, 4]);
-  const lacunas = { 1: 'R1', 2: 'R2', 5: 'R4', 6: 'R3', 7: 'R5' };
+  assert.deepEqual(ready, [1, 3, 4]);
+  const lacunas = { 2: 'R2', 5: 'R4', 6: 'R3', 7: 'R5' };
   for (const [id, r] of Object.entries(lacunas)) {
     assert.equal(PROJECTS[id].status, 'em-breve');
     assert.deepEqual(PROJECTS[id].blockedBy, [r]);
     assert.deepEqual(PROJECTS[id].drawings, []);
     assert.equal(PROJECTS[id].defaultDrawing, null);
   }
+});
+
+test('projeto 1 pronto: sem lacuna, desenho genérico', () => {
+  assert.deepEqual(PROJECTS[1].blockedBy, []);
+  assert.deepEqual(PROJECTS[1].drawings, [{ id: 'p1-aparelho', match: {} }]);
+  assert.equal(PROJECTS[1].defaultDrawing, 'p1-aparelho');
 });
 
 test('projetos prontos com peças padrão e UF/DDD: nenhum problema', () => {

@@ -10,3 +10,14 @@ Heltec V4 a bateria. Quando houver o dado (curva de descarga com fonte), impleme
 
 São instruções do PDF (medir tensão das células antes de ligar em paralelo; teste de descarga completa e 48 h só
 no solar), tratadas em outra tarefa.
+
+## Lacunas de pesquisa que mantêm projetos "em breve" (Task 8; detalhe em `docs/research/2026-11-lacunas.md`)
+
+- **R2 (projeto 2):** polaridade BAT+/GND do conector JP1 (1,25 mm, 2 pinos) da Heltec V3. Não consta em texto no
+  datasheet/esquema; conferir o desenho do esquema e a serigrafia da placa.
+- **R3 (projeto 6):** medição do RAK 1 W pelo usuário (consumo médio com tráfego típico, base WisBlock e
+  carregamento solar com picos de 1 A).
+- **R4 (projeto 5):** decisão de produto sobre o painel para o CN3065 (máximo absoluto 6,5 V, entrada 4,4–6 V;
+  um painel "6 V" passa de 7 V em aberto). A tensão do painel de 9 W do repetidor de PT não é declarada.
+- **R5 (projeto 7):** página de onboarding do analyzer (analyzer.letsmesh.net/observer/onboard) deu 403 e não foi
+  lida; falta a lista de placas do observer e conferir os brokers atuais.
