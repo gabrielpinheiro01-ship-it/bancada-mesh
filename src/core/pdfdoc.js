@@ -10,12 +10,12 @@ import { repeaterCommands, companionSteps } from './commands.js';
 import { drawingFor, markSvg } from './drawing.js';
 import { formatBR } from './numbers.js';
 import { FLASH, firmwareTypeFor, FLASH_REPROVADA } from '../content/flash.js';
-import { STEPS } from '../content/steps.js';
+import { stepsFor } from '../content/steps.js';
 import { INSTALL } from '../content/install.js';
 import { AFTER } from '../content/after.js';
 import { ALERTS } from '../content/alerts.js';
 import { CONFIG_NOTES } from '../content/config-notes.js';
-import { SHOPPING_TIPS, SHOPPING_ACCESSORIES, SHOPPING_SOURCE } from '../content/shopping.js';
+import { SHOPPING_TIPS, SHOPPING_ACCESSORIES, SHOPPING_SOURCE, SUPORTE_1_CELULA } from '../content/shopping.js';
 
 const INK = '#0F172A';
 const GRAY = '#475569';
@@ -130,13 +130,15 @@ export function shoppingRows(state, items) {
     if (!part) continue;
     rows.push({
       slot, slotLabel: def.label, partId, name: part.name,
-      qty: part.attrs?.cells ?? 1,
+      qty: 1, // o nome da peça já diz quantas baterias vêm
       tip: SHOPPING_TIPS[partId] ?? '',
       price: priceText(part.price),
       reprovada: bad.has(slot),
     });
   }
-  for (const a of SHOPPING_ACCESSORIES[state.projectId] ?? []) {
+  const cells = PARTS[state.parts.bateria]?.attrs?.cells ?? 0;
+  for (const a0 of SHOPPING_ACCESSORIES[state.projectId] ?? []) {
+    const a = a0.id === 'suporte' && cells === 1 ? SUPORTE_1_CELULA : a0;
     rows.push({
       slot: 'acessorio', slotLabel: 'Acessório', partId: null, name: a.name, qty: a.qty,
       tip: a.tip ?? '', price: NO_PRICE, reprovada: false,
@@ -405,6 +407,8 @@ function commandsPage(ctx) {
   return { title: 'Comandos', content };
 }
 
+const NOT_CALC = 'não calculada (capacidade anunciada falsa)';
+
 function energyPage(ctx) {
   const { state, energy: e, items } = ctx;
   const row = (label, value) => [{ text: label }, { text: value, font: 'Mono', bold: true }];
@@ -415,8 +419,8 @@ function energyPage(ctx) {
     row('Horas de sol pleno por dia', fn(state.hsp)),
     row('Energia gasta nos dias sem sol', `${f0(e.E)} mAh`),
     row('Bateria necessária', `${f0(e.Cnec)} mAh`),
-    row('Bateria instalada', `${f0(e.batteryMah)} mAh`),
-    row('Autonomia sem sol', `${f1(e.autonomyDays)} dias`),
+    row('Bateria instalada', e.autonomyDays == null ? NOT_CALC : `${f0(e.batteryMah)} mAh`),
+    row('Autonomia sem sol', e.autonomyDays == null ? NOT_CALC : `${f1(e.autonomyDays)} dias`),
     row('Painel mínimo', `${f2(e.Pmin)} W`),
     row('Painel recomendado', `${f2(e.Prec)} W`),
     row('Painel escolhido', e.panelW ? `${fn(e.panelW)} W` : 'nenhum'),
@@ -457,7 +461,7 @@ function energyPage(ctx) {
 function buildPage(ctx) {
   const { state, project } = ctx;
   const repeater = project.role === 'repeater';
-  const content = [h1(repeater ? 'Montagem, instalação e manutenção' : 'Montagem e teste de bancada'), h2('Montagem e teste de bancada'), numbered(STEPS[state.projectId] ?? [])];
+  const content = [h1(repeater ? 'Montagem, instalação e manutenção' : 'Montagem e teste de bancada'), h2('Montagem e teste de bancada'), numbered(stepsFor(state.projectId, PARTS[state.parts.bateria]?.attrs?.cells ?? 0))];
   if (repeater) {
     const blocksFor = INSTALL.filter((b) => {
       if (b.id === INSTALL_FILTER_IDS.panel) return Boolean(state.parts.painel);

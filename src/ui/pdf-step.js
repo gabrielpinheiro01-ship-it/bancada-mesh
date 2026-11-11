@@ -3,6 +3,7 @@
 import { runAudit, summarize } from '../core/audit.js';
 import { buildPdfDoc, pdfPageTitles, pdfFileName, drawingIdFor, auditSummaryText } from '../core/pdfdoc.js';
 import { el } from './shell.js';
+import { noticeIcon } from './audit-panel.js';
 
 const ROOT = new URL('../../', import.meta.url);
 const PDFMAKE_URL = new URL('vendor/pdfmake/pdfmake.min.js', ROOT).href;
@@ -151,7 +152,7 @@ export function renderPdfStep(root, _route, state) {
       status.textContent = 'PDF gerado. Veja a pasta de downloads do seu navegador.';
     } catch {
       status.textContent = '';
-      erro.textContent = MSG_ERRO;
+      erro.replaceChildren(noticeIcon(), el('span', {}, MSG_ERRO));
     } finally {
       botao.disabled = false;
       botao.removeAttribute('aria-busy');

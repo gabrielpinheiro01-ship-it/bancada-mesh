@@ -35,8 +35,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      - name: Montar só o site em _site
+        run: |
+          mkdir _site
+          cp -r index.html src styles assets vendor LICENSE LICENSE-CONTENT _site/
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4

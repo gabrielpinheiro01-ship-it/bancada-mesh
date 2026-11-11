@@ -21,6 +21,9 @@ export function validateCustomRegion(text, uf) {
   }
   if (!text.startsWith(prefix)) return { ok: false, reason: `Tem que começar com ${prefix}` };
   if (text.length === prefix.length) return { ok: false, reason: `Escreva algo depois de ${prefix}` };
+  if (text.includes('--') || !/[a-z0-9]$/.test(text)) {
+    return { ok: false, reason: 'Não use hífen duplo nem termine com hífen' };
+  }
   return { ok: true, reason: null };
 }
 

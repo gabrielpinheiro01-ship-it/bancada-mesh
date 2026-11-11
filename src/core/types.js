@@ -1,4 +1,5 @@
 /** @typedef {'bad'|'warn'|'ok'} Level */
+/** @typedef {'battery'|'solar'|'mains'|'integrated'} Power */
 /** @typedef {{id:string, level:Level, slot:string, title:string, why:string,
  *   fix?:{label:string, slot:string, partId:string}, source:string}} AuditItem */
 /** @typedef {{projectId:number, parts:Record<string,string>, location:string|null,

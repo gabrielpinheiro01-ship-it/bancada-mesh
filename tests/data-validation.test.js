@@ -76,3 +76,10 @@ test('todo slot de todo projeto aponta para peças existentes do slot certo', ()
     if (project.drawings.length) assert.ok(project.drawings.some((d) => d.id === project.defaultDrawing));
   }
 });
+
+test('power só aceita battery, solar, mains ou integrated; integrated exige companion', () => {
+  for (const [id, p] of Object.entries(PROJECTS)) {
+    assert.ok(['battery', 'solar', 'mains', 'integrated'].includes(p.power), `${id} power`);
+    if (p.power === 'integrated') assert.equal(p.role, 'companion', `${id} integrated só em companion`);
+  }
+});

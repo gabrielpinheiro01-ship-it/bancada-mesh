@@ -131,7 +131,7 @@ button.botao:disabled { background: var(--linha); border-color: var(--texto-secu
 .pdf-previa { max-width: 40rem; margin: 0 0 var(--esp-4); padding-left: 1.5rem; }
 .pdf-acoes { margin: 0 0 var(--esp-3); }
 .pdf-status { margin: 0 0 var(--esp-2); min-height: 1.5rem; color: var(--texto-secundario); }
-.pdf-erro { margin: 0 0 var(--esp-3); max-width: 40rem; font-weight: 700; color: var(--problema); }
+.pdf-erro { margin: 0 0 var(--esp-3); max-width: 40rem; display: flex; align-items: flex-start; gap: var(--esp-2); font-weight: 700; color: var(--tinta); }
 .pdf-erro:empty, .pdf-status:empty { display: none; }
 
 /* passo 2: bancada. Verde, laranja e vermelho só no resultado da auditoria (resumo, itens, barras, selo).

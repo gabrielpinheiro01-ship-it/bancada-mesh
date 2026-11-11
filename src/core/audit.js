@@ -39,6 +39,11 @@ export function buildRuleCtx(state) {
       ...calcEnergy(input),
       atDefaults: calcEnergy({ ...input, ...d }),
     };
+    // Capacidade anunciada falsa (mesmo critério de EN-01): a autonomia não existe, nem a dos padrões.
+    if (!parts.bateria.branded && parts.bateria.mahPerCell > 3500) {
+      energy.autonomyDays = null;
+      energy.atDefaults = { ...energy.atDefaults, autonomyDays: null };
+    }
   }
   return { state, project, parts, energy, lessConservative };
 }

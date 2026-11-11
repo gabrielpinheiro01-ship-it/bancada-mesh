@@ -213,10 +213,10 @@ test('alertas de bateria só nos projetos com bateria', () => {
   assert.ok(flat(p4()).includes('Troca da bateria'));
 });
 
-test('compras: quantidade da bateria = número de células; detalhe, preço e "sem preço"', () => {
+test('compras: bateria sempre Qtd 1 (o nome diz quantas células); detalhe, preço e "sem preço"', () => {
   const rows = shoppingRows(p4(), runAudit(p4()));
   const bat = rows.find((r) => r.slot === 'bateria');
-  assert.equal(bat.qty, 2);
+  assert.equal(bat.qty, 1);
   assert.equal(rows.find((r) => r.slot === 'placa').qty, 1);
   assert.match(bat.tip, /Samsung 35E/);
   assert.match(rows.find((r) => r.slot === 'carregador').tip, /DW01/);
@@ -300,4 +300,28 @@ test('withTimeout: resolve a tempo, rejeita no tempo-limite e propaga erro', asy
   assert.equal(await withTimeout(Promise.resolve(7), 50), 7);
   await assert.rejects(withTimeout(new Promise(() => {}), 20, 'demorou'), /demorou/);
   await assert.rejects(withTimeout(Promise.reject(new Error('falhou')), 50), /falhou/);
+});
+
+test('bateria falsa: PDF não imprime autonomia nem capacidade instalada', () => {
+  const t = flat(p4({ bateria: 'bat-2x9900-generica' }));
+  assert.ok(!t.includes('56,1'));
+  assert.ok(!t.includes('19800'));
+  assert.ok(t.includes('não calculada'));
+});
+
+test('uma célula: montagem e compras sem "duas baterias" nem "em paralelo"', () => {
+  const s = p4({ bateria: 'bat-1x3500' });
+  const t = flat(s);
+  assert.ok(!t.includes('duas baterias'));
+  assert.ok(!t.includes('em paralelo'));
+  assert.ok(!t.includes('ligadas em paralelo'));
+  const rows = shoppingRows(s, []);
+  assert.ok(rows.some((r) => r.name === 'Suporte para 1 bateria 18650'));
+  assert.ok(!rows.some((r) => /paralelo/.test(r.name + r.tip)));
+});
+
+test('duas células: continua mandando medir e ligar em paralelo', () => {
+  const t = flat(p4());
+  assert.ok(t.includes('duas baterias'));
+  assert.ok(t.includes('em paralelo'));
 });

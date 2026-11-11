@@ -33,7 +33,6 @@ const parts = {
     slot: 'placa', name: 'Kit XIAO nRF52840 + Wio-SX1262', short: 'XIAO nRF52840',
     attrs: wio({}),
     price: { min: 100, max: 100, source: 'Mesh Sorocaba (hardware-energia.md)', date: '2026-04-27' },
-    photo: SEEED('xiao-nrf52840-wio', 'https://wiki.seeedstudio.com/xiao_nrf52840&_wio_SX1262_kit_for_meshtastic/'),
   },
   'xiao-esp32s3-wio': {
     slot: 'placa', name: 'Kit XIAO ESP32-S3 + Wio-SX1262', short: 'XIAO ESP32-S3',

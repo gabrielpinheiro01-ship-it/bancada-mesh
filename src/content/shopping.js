@@ -70,6 +70,12 @@ const SILICA = { id: 'silica', name: 'Sachê de sílica gel', qty: 1, tip: 'Vai 
 const ESPUMA = { id: 'fita-dupla', name: 'Espuma ou fita dupla-face', qty: 1, tip: 'Para prender tudo por dentro. Nada solto batendo.' };
 const AUTOFUSAO = { id: 'autofusao', name: 'Fita autofusão', qty: 1, tip: 'Para enrolar na conexão SMA da antena e vedar contra a chuva.' };
 
+/** Suporte quando a bateria escolhida tem uma célula só (substitui o 'suporte' em paralelo). */
+export const SUPORTE_1_CELULA = Object.freeze({
+  id: 'suporte', name: 'Suporte para 1 bateria 18650', qty: 1,
+  tip: 'Confira que o polo positivo e o negativo do suporte batem com os fios vermelho (+) e preto (−).',
+});
+
 /**
  * Acessórios por projeto: { id, name, qty, tip }. Não têm preço de referência.
  * Fonte: guia-repeater-xiao-solar.md §1 (itens 5, 9, 10, 11), §6 (água) e os passos de STEPS.

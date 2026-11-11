@@ -52,3 +52,10 @@ test('validateCustomRegion', () => {
   assert.match(validateCustomRegion('br-mg-31', 'SP').reason, /br-sp-/);
   assert.match(validateCustomRegion('BR-SP-Vale', 'SP').reason, /minúsculas/);
 });
+
+test('região própria: sem hífen duplo nem hífen no fim', () => {
+  assert.equal(validateCustomRegion('br-sp--', 'SP').ok, false);
+  assert.equal(validateCustomRegion('br-sp-a-', 'SP').ok, false);
+  assert.equal(validateCustomRegion('br-sp-a--b', 'SP').ok, false);
+  assert.equal(validateCustomRegion('br-sp-a-b', 'SP').ok, true);
+});

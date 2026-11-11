@@ -9,6 +9,25 @@ export const STEPS_SOURCE = Object.freeze({
   4: 'references/guia-repeater-xiao-solar.md §2 (esquema, solda nos pads BAT), §5 (teste de bancada) · SKILL.md ("Versões de firmware": sem bootlock na 1.18) · references/hardware-energia.md ("Proteção de bateria", "Armadilhas físicas") · https://wiki.seeedstudio.com/xiao_nrf52840&_wio_SX1262_kit_for_meshtastic/',
 });
 
+const PASSO_JUNTAR = 'Antes de juntar as duas baterias';
+const PASSO_SUPORTE = 'Coloque as baterias em um suporte';
+
+/**
+ * Passos de montagem do projeto, ajustados ao número de células da bateria escolhida:
+ * com uma célula só não há o que juntar nem medir em paralelo.
+ * @param {number} projectId
+ * @param {number} cells
+ */
+export function stepsFor(projectId, cells) {
+  const list = STEPS[projectId] ?? [];
+  if (cells !== 1) return list;
+  return list
+    .filter((t) => !t.startsWith(PASSO_JUNTAR))
+    .map((t) => (t.startsWith(PASSO_SUPORTE)
+      ? 'Coloque a bateria 18650 em um suporte para uma bateria, com o polo positivo do suporte no fio vermelho e o negativo no fio preto.'
+      : t));
+}
+
 export const STEPS = Object.freeze({
   1: [
     'Carregue o aparelho por completo antes de começar, com o cabo que veio na caixa.',

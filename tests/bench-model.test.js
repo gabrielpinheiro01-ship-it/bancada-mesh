@@ -259,7 +259,8 @@ test('detailModel: nome, dica, itens do slot e foto (ou null)', () => {
   assert.ok(d.tip.length > 10);
   assert.deepEqual(d.items.map((x) => x.id), ['EN-10']);
   assert.equal(d.photo, null);
-  const p = detailModel(createState(4), 'placa', []);
+  assert.equal(detailModel(createState(4), 'placa', []).photo, null);
+  const p = detailModel(swapPart(createState(4), 'placa', 'xiao-esp32s3-wio'), 'placa', []);
   assert.equal(p.photo.license, 'CC BY-SA 4.0');
   assert.match(p.photo.file, /^assets\/photos\/.+\.webp$/);
   assert.equal(detailModel(createState(4), 'inexistente', []), null);
