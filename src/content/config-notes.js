@@ -65,8 +65,8 @@ export const CONFIG_NOTES = Object.freeze([
     items: [
       'O padrão do Brasil quer o anúncio de vizinhança desligado. Ele só é ouvido por quem está ao alcance direto do rádio e não adianta nada: o anúncio por toda a rede já faz esse trabalho.',
       'O firmware 1.18 aceita o valor zero, mas já zera esse intervalo sozinho quando você salva qualquer configuração.',
-      'Por isso a lista de comandos não manda mudar. Ela só manda conferir: depois de configurar, rode get advert.interval. A resposta tem que ser 0.',
+      'Por isso a lista de comandos não manda mudar. Ela só manda conferir: depois de configurar, rode get advert.interval. A resposta tem que ser 0 (no console aparece `> 0`, onde o "> " é só o início da linha de resposta).',
     ],
-    source: 'references/padroes-comunidade-br.md §2 · SKILL.md ("Checklist de repetidor", nota sobre advert.interval) · docs/superpowers/specs/2026-11-11-bancada-mesh-design.md §8.1 CFG-05',
+    source: 'references/padroes-comunidade-br.md §2 · SKILL.md ("Checklist de repetidor", nota sobre advert.interval) · references/oficial/cli_commands.md ("View or change the zero-hop advert interval": padrão 2 num nó de fábrica, depois 0 (desligado) quando configurado) · docs/superpowers/specs/2026-11-11-bancada-mesh-design.md §8.1 CFG-05',
   },
 ]);

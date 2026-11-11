@@ -42,7 +42,7 @@ export const ALERTS = Object.freeze([
     id: 'EN-14',
     title: 'Teste a bateria antes de instalar',
     items: [
-      'Faça o teste de descarga completa na bancada: deixe o repetidor na bateria até desligar e veja se ele volta sozinho quando a energia voltar.',
+      'Faça o teste de descarga completa na bancada, mas só com a proteção ligada (TP4056 com DW01 ou BMS 1S); sem ela a bateria pode se danificar. Deixe o repetidor na bateria até desligar e veja se ele volta sozinho quando a energia voltar.',
       'No solar, deixe também 48 h funcionando só no painel antes de subir.',
       'Desde o firmware 1.18, a maioria das placas nRF52 não se desliga sozinha com a bateria fraca e pode travar. É melhor descobrir isso na mesa do que em cima do telhado.',
     ],

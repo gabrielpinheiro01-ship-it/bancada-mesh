@@ -53,7 +53,7 @@ export const STEPS = Object.freeze({
     'Teste de bancada 2: com outro rádio e o app MeshCore, veja se o repetidor aparece nos contatos e responde ao login de administrador.',
     'Teste de bancada 3: meça a corrente média parada, com medidor USB ou multímetro em série. Para nRF52840 com o módulo de rádio em escuta, o esperado fica por volta de 5 a 10 mA. Muito acima disso, procure o problema.',
     'Teste de bancada 4: ponha o painel no sol. O LED de carga acende e a tensão da bateria sobe?',
-    'Teste de descarga completa: deixe o repetidor só na bateria, sem painel, até a proteção cortar a energia. Depois ligue o painel e veja se ele volta sozinho. Desde o firmware 1.18, a maioria das placas nRF52 não se desliga sozinha com a bateria fraca e pode travar. Se não voltar, não instale.',
+    'Teste de descarga completa: só faça com a proteção ligada (TP4056 com DW01 ou BMS 1S); sem ela a bateria pode se danificar. Com a proteção, deixe o repetidor só na bateria, sem painel, até ela cortar a energia. Depois ligue o painel e veja se ele volta sozinho. Desde o firmware 1.18, a maioria das placas nRF52 não se desliga sozinha com a bateria fraca e pode travar. Se não voltar, não instale.',
     'Depois de passar na descarga, deixe 48 horas funcionando só no painel, com a bateria carregando e descarregando. Só então leve para o lugar definitivo.',
     'Feche a caixa: prensa-cabo no fio do painel, respiro de equalização, sachê de sílica gel dentro, tudo preso com espuma.',
   ],

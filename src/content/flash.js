@@ -23,21 +23,22 @@ const FLASHER = 'flasher.meshcore.io';
 const FLASHER_BR = 'meshcore.com.br/flasher';
 
 // Passos que valem para qualquer placa; a parte própria de cada uma entra no meio.
-function steps({ type, listName, manual, signal, extra = [], after }) {
+function steps({ type, listName, manual, signal, extra = [], after, antenna }) {
   const eng = type === 'Repetidor'
     ? ' (no flasher, que é em inglês, aparece como "Repeater")'
     : ' (no flasher, que é em inglês, aparece como "Companion" com Bluetooth, BLE)';
   return [
-    'Use um computador com Chrome ou Edge. O flasher não funciona no celular nem no Firefox.',
+    antenna || 'Antes de ligar a placa no cabo, rosqueie ou encaixe a antena. Nunca ligue o rádio sem antena: pode queimar o chip de rádio.',
+    'Use um computador com Chrome ou Edge. O flasher (um site que grava o programa, o firmware, dentro da placa) não funciona no celular nem no Firefox.',
     `Abra ${FLASHER} (ou o espelho brasileiro, ${FLASHER_BR}).`,
     'Use um cabo USB de dados. Cabo que só carrega não serve: o flasher não enxerga a placa.',
     `Ligue a placa no computador. Na lista do flasher, escolha ${listName}. Se o nome for um pouco diferente, procure pelo modelo.`,
     `Em "tipo de firmware", escolha ${type}${eng}.`,
-    'Clique em "Enter DFU Mode". Na maioria das vezes isso basta e a placa já fica pronta para receber o firmware.',
-    `Se a placa não aparecer, entre no modo de gravação na mão: ${manual}`,
-    `Sinal de que entrou: ${signal}`,
+    'Se o seu flasher mostrar o botão "Enter DFU Mode", clique nele. Na maioria das vezes isso basta e a placa já fica pronta para receber o firmware.',
+    `Viu o sinal de que entrou no modo de gravação? Então siga. O sinal é: ${signal}`,
+    `Não viu o sinal? Entre no modo de gravação na mão: ${manual}`,
     ...extra,
-    'Clique em gravar (Flash) e espere terminar. Não tire o cabo no meio.',
+    'Clique em gravar (Flash) e espere terminar. O flasher grava sozinho pelo cabo. Se ele pedir, ou se você baixou o arquivo .uf2, arraste esse arquivo para o disco USB que apareceu no computador. Não tire o cabo no meio.',
     'Deu erro? Tente de novo. Costuma dar certo na segunda vez.',
     after,
   ];
@@ -58,7 +59,8 @@ export const FLASH = Object.freeze({
       listName: 'o Seeed Wio Tracker L1 Pro (se a lista só tiver "Wio Tracker L1", procure por esse nome)',
       manual: 'com o cabo USB de dados ligado, dê um duplo toque no botão Reset. Para sair do modo, um toque só no Reset.',
       signal: 'o LED fica amarelo e fixo, e o computador mostra uma porta serial e um disco USB novos. O nome do disco muda conforme a versão do bootloader, então não use o nome como prova.',
-      extra: ['Não atualize esse aparelho pelo app nRF (NRF-OTA): a Seeed avisa que pode deixá-lo morto. Atualize sempre pelo cabo.'],
+      extra: ['Atualize esse aparelho pelo cabo, como nestes passos.'],
+      antenna: 'Se o seu aparelho tem antena que rosqueia ou encaixa, ponha a antena antes de ligar o cabo. Nunca ligue o rádio sem antena: pode queimar o chip de rádio.',
       after: AFTER_COMPANION,
     }),
     source: 'references/hardware-energia.md, "Modo de gravação por placa" (Wio Tracker L1 / L1 Pro) · https://wiki.seeedstudio.com/get_started_with_meshtastic_wio_tracker_l1/ (FAQ; a página é de Meshtastic, o procedimento é do bootloader da placa e vale para MeshCore) · docs/research/2026-11-lacunas.md R1',
@@ -71,6 +73,7 @@ export const FLASH = Object.freeze({
       manual: 'segure o botão do aparelho e plugue o cabo magnético de carga duas vezes, rápido. Pode precisar de várias tentativas.',
       signal: 'o LED fica verde e fixo, e aparece no computador um disco chamado T1000-E (leva uns 10 a 15 segundos). Ficou preso nesse modo? Segure o botão e plugue o cabo uma vez só para reiniciar.',
       extra: ['Não atualize o T1000-E pelo app nRF (atualização OTA, pelo ar). A Seeed avisa que isso pode travar o aparelho. Atualize só pelo cabo, como nestes passos.'],
+      antenna: 'Se o seu aparelho tem antena que rosqueia ou encaixa, ponha a antena antes de ligar o cabo. Nunca ligue o rádio sem antena: pode queimar o chip de rádio.',
       after: AFTER_COMPANION,
     }),
     source: 'references/hardware-energia.md, "Modo de gravação por placa" (SenseCAP T1000-E) · references/manuais-e-datasheets.md (alerta da Seeed sobre OTA) · https://wiki.seeedstudio.com/sensecap_t1000_e_meshcore/ (Firmware Flashing e Troubleshooting) · docs/research/2026-11-lacunas.md R1',
@@ -82,6 +85,7 @@ export const FLASH = Object.freeze({
       listName: 'o RAK WisMesh Tag',
       manual: 'dê dois toques rápidos no botão de trás (o do topo, que também reinicia o aparelho; um toque só apenas reinicia). O botão da frente não serve. A USB desse aparelho é o conector magnético de 4 pinos, com o cabo que vem no kit.',
       signal: 'o LED verde fica "respirando" (acende e apaga devagar).',
+      antenna: 'Se o seu aparelho tem antena que rosqueia ou encaixa, ponha a antena antes de ligar o cabo. Nunca ligue o rádio sem antena: pode queimar o chip de rádio.',
       after: AFTER_COMPANION,
     }),
     source: 'references/hardware-energia.md, "Modo de gravação por placa" (RAK WisMesh Tag) · https://docs.rakwireless.com/product-categories/meshtastic/wismesh-tag/quickstart (guia de Meshtastic; o modo de gravação vale para MeshCore) · docs/research/2026-11-lacunas.md R1',
@@ -94,7 +98,7 @@ export const FLASH = Object.freeze({
       type: 'Repetidor',
       listName: 'a Heltec Mesh Node T114',
       manual: NRF_DOUBLE_TAP,
-      signal: 'a placa aparece no computador como um disco USB novo (modo UF2/DFU). Essa é a regra de toda placa com chip nRF52840; para a T114 não achei página do fabricante com o passo a passo. Se nada aparecer, volte ao botão "Enter DFU Mode" do flasher.',
+      signal: 'a placa aparece no computador como um disco USB novo (modo UF2/DFU). Este é o procedimento padrão das placas com o chip nRF52840. Se nada aparecer, volte ao botão "Enter DFU Mode" do flasher.',
       after: AFTER_REPEATER,
     }),
     source: 'references/hardware-energia.md, "Atualização de firmware" (regra genérica de nRF52: duplo toque no reset) · docs/research/2026-11-lacunas.md R1 (T114 = regra genérica, sem página própria do fabricante)',
@@ -105,7 +109,7 @@ export const FLASH = Object.freeze({
       type: 'Repetidor',
       listName: 'a Heltec WiFi LoRa 32 V3',
       manual: ESP_BOOT,
-      signal: 'o computador reconhece a placa e o flasher consegue escolher a porta dela. Depois de gravar, pode ser preciso apertar o botão RST para a placa reiniciar.',
+      signal: 'a placa aparece na lista de portas do flasher. Depois de gravar, pode ser preciso apertar o botão RST para a placa reiniciar.',
       extra: ['Confira a revisão impressa na placa (V3, V3.1 ou V3.2) e a versão de 915 MHz antes de gravar.'],
       after: AFTER_REPEATER,
     }),
@@ -130,7 +134,7 @@ export const FLASH = Object.freeze({
       type: 'Repetidor',
       listName: 'a Seeed XIAO ESP32-S3 (Wio-SX1262)',
       manual: ESP_BOOT,
-      signal: 'o computador reconhece a placa e o flasher consegue escolher a porta dela. Depois de gravar, pode ser preciso apertar o botão RST para a placa reiniciar.',
+      signal: 'a placa aparece na lista de portas do flasher. Depois de gravar, pode ser preciso apertar o botão RST para a placa reiniciar.',
       after: AFTER_REPEATER,
     }),
     source: 'SKILL.md, "Reset de fábrica / placa travada" (ESP32-S3: PRG/BOOT + plugar o USB, ou PRG + toque em RST) · docs/research/2026-11-lacunas.md R1',
