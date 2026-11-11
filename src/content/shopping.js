@@ -52,8 +52,9 @@ export const SHOPPING_TIPS = Object.freeze({
 
   // Cabos
   'pigtail-15cm': 'Pigtail curto U.FL (IPEX) para SMA fêmea de painel. Cabo curto perde pouco sinal.',
-  'rg58-3m': 'Cabo longo perde sinal. Se puder, ponha a caixa junto da antena e use pigtail curto.',
-  'lmr400-3m': 'Cabo longo e grosso, de baixa perda. Se puder, ponha a caixa junto da antena e use pigtail curto.',
+  // Cabo longo não entra no U.FL da placa: a saída da caixa é sempre o pigtail (guia §1 item 2; hardware-energia.md "Antenas").
+  'rg58-3m': 'Cabo longo perde sinal. Se puder, ponha a caixa junto da antena e use pigtail curto. Com este cabo você também precisa de um pigtail U.FL (IPEX) para SMA de 10 a 15 cm, para sair da caixa.',
+  'lmr400-3m': 'Cabo longo e grosso, de baixa perda. Se puder, ponha a caixa junto da antena e use pigtail curto. Com este cabo você também precisa de um pigtail U.FL (IPEX) para SMA de 10 a 15 cm, para sair da caixa.',
 
   // Caixas
   'caixa-clara-respiro': 'Caixa estanque IP65 de cor clara, com respiro. Cor escura esquenta e estraga a bateria.',

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 1290" font-family="Atkinson Hyperlegible, Atkinson, sans-serif">
   <title>Ligação do repetidor solar XIAO com carregador solar CN3791 e BMS 1S</title>
-  <desc>Painel solar nos pontos IN+ e IN− do CN3791. Saída BAT+ e BAT− do CN3791 nos pontos P+ e P− do BMS 1S. Bateria (pack 1S, células em paralelo) nos pontos B+ e B− do BMS. XIAO, pelos pads BAT+ e BAT− que ficam embaixo da placa, também nos pontos P+ e P− do BMS: cada ponto P recebe 2 fios. Wio-SX1262 encaixado na XIAO. Cabo da antena do conector U.FL até o SMA na caixa, onde rosqueia a antena de 915 MHz. O cabo do painel entra pelo prensa-cabo, com a curva para baixo. Fio vermelho é positivo; fio preto é negativo.</desc>
+  <desc>Painel solar nos pontos IN+ e IN− do CN3791. Saída BAT+ e BAT− do CN3791 nos pontos P+ e P− do BMS 1S. Bateria (pack 1S, células em paralelo) nos pontos B+ e B− do BMS. XIAO, pelos pads BAT+ e BAT− que ficam embaixo da placa, também nos pontos P+ e P− do BMS: cada ponto P recebe 2 fios. Wio-SX1262 encaixado na XIAO. Cabo da antena: pigtail do conector U.FL até o SMA na caixa e, se a antena ficar longe da caixa, cabo coaxial do SMA até a antena de 915 MHz. O cabo do painel entra pelo prensa-cabo, com a curva para baixo. Fio vermelho é positivo; fio preto é negativo.</desc>
 
   <!-- Caixa (fundo): prensa-cabo e respiro na parede de baixo -->
   <g data-slot="caixa" tabindex="0" role="button" aria-label="Caixa">
@@ -40,18 +40,25 @@
   <g data-slot="antena" tabindex="0" role="button" aria-label="Antena">
     <text x="548" y="70" font-size="20" font-weight="700" text-anchor="end" fill="#0F172A">Antena</text>
     <text x="548" y="94" font-size="20" font-weight="700" text-anchor="end" fill="#0F172A">915 MHz</text>
-    <rect x="564" y="48" width="16" height="226" rx="8" fill="#0F172A" stroke="#0F172A" stroke-width="2"/>
-    <rect x="561" y="270" width="22" height="16" rx="2" fill="#475569" stroke="#0F172A" stroke-width="2"/>
-    <rect id="hl-antena" x="555" y="40" width="34" height="240" rx="8" fill-opacity="0"/>
+    <rect x="564" y="40" width="16" height="148" rx="8" fill="#0F172A" stroke="#0F172A" stroke-width="2"/>
+    <rect x="561" y="186" width="22" height="16" rx="2" fill="#475569" stroke="#0F172A" stroke-width="2"/>
+    <rect id="hl-antena" x="555" y="32" width="34" height="176" rx="8" fill-opacity="0"/>
   </g>
 
+  <!-- Cabo da antena: pigtail do U.FL até o SMA (dentro da caixa) e, se a antena ficar longe, cabo coaxial do SMA até a antena -->
   <g data-slot="cabo" tabindex="0" role="button" aria-label="Cabo da antena">
+    <path d="M572 202V236M572 252V286" fill="none" stroke="#0F172A" stroke-width="10"/>
+    <path d="M572 203V236M572 252V285" fill="none" stroke="#B9822F" stroke-width="6"/>
+    <path d="M558 241L586 231M558 257L586 247" fill="none" stroke="#0F172A" stroke-width="2"/>
+    <text x="548" y="226" font-size="15" font-weight="700" text-anchor="end" fill="#0F172A">cabo coaxial até a antena</text>
+    <text x="548" y="246" font-size="15" text-anchor="end" fill="#475569">(se a antena ficar longe da caixa)</text>
+    <text x="548" y="266" font-size="15" text-anchor="end" fill="#475569">pode ser longo</text>
     <path d="M522 432V350H572V314" fill="none" stroke="#B9822F" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
     <rect x="558" y="286" width="28" height="28" rx="3" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
     <text x="552" y="296" font-size="15" text-anchor="end" fill="#475569">SMA</text>
     <text x="512" y="362" font-size="15" font-weight="700" text-anchor="end" fill="#0F172A">Cabo da antena</text>
-    <text x="512" y="382" font-size="15" text-anchor="end" fill="#475569">do U.FL até o SMA</text>
-    <rect id="hl-cabo" x="400" y="282" width="196" height="106" rx="8" fill-opacity="0"/>
+    <text x="512" y="382" font-size="15" text-anchor="end" fill="#475569">pigtail do U.FL até o SMA</text>
+    <rect id="hl-cabo" x="296" y="210" width="300" height="178" rx="8" fill-opacity="0"/>
   </g>
 
   <g data-slot="placa" tabindex="0" role="button" aria-label="Placa">

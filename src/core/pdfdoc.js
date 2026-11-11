@@ -26,7 +26,11 @@ const GREEN = '#15803D';
 const PAGE = Object.freeze({ width: 595.28, height: 841.89 });
 const MARGINS = Object.freeze([40, 48, 40, 52]);
 const CONTENT_W = 515; // 595,28 - 40 - 40, arredondado para baixo
-const DRAWING_MAX_H = 400;
+// O desenho ocupa sozinho a página "Ligação": só o título em cima e a legenda embaixo (os alertas vão para a
+// página seguinte quando não cabem). 650 pt é o maior alto que ainda deixa título, desenho e legenda (com
+// "Peças marcadas" em 2 linhas, o máximo) na mesma A4, com folga de ~10 pt (conferido gerando o PDF).
+// Nos desenhos verticais do projeto 4, os nomes dos pontos de solda (16 no viewBox) saem com 8 pt ou mais.
+export const DRAWING_MAX_H = 650;
 
 const LEVEL_WORD = Object.freeze({ bad: 'PROBLEMA', warn: 'ATENÇÃO', ok: 'OK' });
 const NO_PRICE = 'sem preço de referência';
@@ -324,9 +328,12 @@ function drawingPage(ctx) {
       ...(marked.length ? [{ text: `Peças marcadas: ${marked.join(', ')}.`, bold: true }] : []),
     ]
     : [{ text: 'Desenho indisponível. Não foi possível incluir o desenho da ligação neste PDF. Abra o desenho na bancada, no site.', bold: true, margin: [0, 4, 0, 4] }];
+  // O título "Alertas" anda junto com o primeiro alerta: se não couberem embaixo do desenho, os dois
+  // descem juntos para a página seguinte (nada de título sozinho no pé da página do desenho).
+  const [first, ...rest] = blocks(alertsFor(state, project));
   return {
     title: 'Ligação',
-    content: [h1('Ligação'), ...draw, h2('Alertas'), ...blocks(alertsFor(state, project))],
+    content: [h1('Ligação'), ...draw, { stack: [h2('Alertas'), ...(first ? [first] : [])], unbreakable: true }, ...rest],
   };
 }
 

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 840" font-family="Atkinson Hyperlegible, Atkinson, sans-serif">
   <title>Ligação do repetidor na tomada com a placa Heltec V3</title>
-  <desc>Fonte USB 5 V na tomada, fora da caixa. O cabo USB faz a curva para baixo, entra pelo prensa-cabo e vai na porta USB-C da placa Heltec V3. Cabo da antena do conector IPEX (U.FL) da placa até o SMA na caixa, onde rosqueia a antena de 915 MHz.</desc>
+  <desc>Fonte USB 5 V na tomada, fora da caixa. O cabo USB faz a curva para baixo, entra pelo prensa-cabo e vai na porta USB-C da placa Heltec V3. Cabo da antena: pigtail do conector IPEX (U.FL) da placa até o SMA na caixa e, se a antena ficar longe da caixa, cabo coaxial do SMA até a antena de 915 MHz.</desc>
 
   <!-- Caixa (fundo): prensa-cabo e respiro na parede de baixo -->
   <g data-slot="caixa" tabindex="0" role="button" aria-label="Caixa">
@@ -33,18 +33,25 @@
   <g data-slot="antena" tabindex="0" role="button" aria-label="Antena">
     <text x="548" y="70" font-size="20" font-weight="700" text-anchor="end" fill="#0F172A">Antena</text>
     <text x="548" y="94" font-size="20" font-weight="700" text-anchor="end" fill="#0F172A">915 MHz</text>
-    <rect x="564" y="48" width="16" height="226" rx="8" fill="#0F172A" stroke="#0F172A" stroke-width="2"/>
-    <rect x="561" y="270" width="22" height="16" rx="2" fill="#475569" stroke="#0F172A" stroke-width="2"/>
-    <rect id="hl-antena" x="555" y="40" width="34" height="240" rx="8" fill-opacity="0"/>
+    <rect x="564" y="40" width="16" height="148" rx="8" fill="#0F172A" stroke="#0F172A" stroke-width="2"/>
+    <rect x="561" y="186" width="22" height="16" rx="2" fill="#475569" stroke="#0F172A" stroke-width="2"/>
+    <rect id="hl-antena" x="555" y="32" width="34" height="176" rx="8" fill-opacity="0"/>
   </g>
 
+  <!-- Cabo da antena: pigtail do IPEX (U.FL) até o SMA (dentro da caixa) e, se a antena ficar longe, cabo coaxial do SMA até a antena -->
   <g data-slot="cabo" tabindex="0" role="button" aria-label="Cabo da antena">
+    <path d="M572 202V236M572 252V286" fill="none" stroke="#0F172A" stroke-width="10"/>
+    <path d="M572 203V236M572 252V285" fill="none" stroke="#B9822F" stroke-width="6"/>
+    <path d="M558 241L586 231M558 257L586 247" fill="none" stroke="#0F172A" stroke-width="2"/>
+    <text x="548" y="226" font-size="15" font-weight="700" text-anchor="end" fill="#0F172A">cabo coaxial até a antena</text>
+    <text x="548" y="246" font-size="15" text-anchor="end" fill="#475569">(se a antena ficar longe da caixa)</text>
+    <text x="548" y="266" font-size="15" text-anchor="end" fill="#475569">pode ser longo</text>
     <path d="M522 436V350H572V314" fill="none" stroke="#B9822F" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
     <rect x="558" y="286" width="28" height="28" rx="3" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
     <text x="552" y="296" font-size="15" text-anchor="end" fill="#475569">SMA</text>
     <text x="512" y="362" font-size="15" font-weight="700" text-anchor="end" fill="#0F172A">Cabo da antena</text>
-    <text x="512" y="382" font-size="15" text-anchor="end" fill="#475569">do U.FL até o SMA</text>
-    <rect id="hl-cabo" x="400" y="282" width="196" height="106" rx="8" fill-opacity="0"/>
+    <text x="512" y="382" font-size="15" text-anchor="end" fill="#475569">pigtail do U.FL até o SMA</text>
+    <rect id="hl-cabo" x="296" y="210" width="300" height="178" rx="8" fill-opacity="0"/>
   </g>
 
   <g data-slot="placa" tabindex="0" role="button" aria-label="Placa">
@@ -75,6 +82,6 @@
   <g font-size="16" fill="#0F172A">
     <text x="24" y="770">Use fonte USB 5 V de boa qualidade: fonte ruim gera ruído de rádio.</text>
     <text x="24" y="796">A fonte fica fora da caixa; só o cabo USB entra, pelo prensa-cabo.</text>
-    <text x="24" y="822">Encaixe o cabo da antena reto no conector IPEX (U.FL), até o clique.</text>
+    <text x="24" y="822">Encaixe o pigtail reto no conector IPEX (U.FL), até o clique.</text>
   </g>
 </svg>

@@ -151,6 +151,141 @@ test('fiação do projeto 4: pontos de cada carregador', () => {
   assert.match(t2, /embaixo/i);
 });
 
+// ---------- fiação como topologia: quem copia o desenho pela posição tem que soldar certo ----------
+
+/** Pontos de um path feito só de M, L, H e V absolutos (é como os fios são desenhados). */
+function pathPoints(d) {
+  const toks = d.match(/[A-Za-z]|-?\d+(?:\.\d+)?/g);
+  const pts = [];
+  let x = 0;
+  let y = 0;
+  let cmd = null;
+  for (let i = 0; i < toks.length;) {
+    if (/[A-Za-z]/.test(toks[i])) cmd = toks[i++];
+    if (cmd === 'M' || cmd === 'L') { x = Number(toks[i++]); y = Number(toks[i++]); } else if (cmd === 'H') x = Number(toks[i++]);
+    else if (cmd === 'V') y = Number(toks[i++]);
+    else throw new Error(`fio com comando ${cmd}: ${d}`);
+    pts.push([x, y]);
+  }
+  return pts;
+}
+
+/** Fios = paths vermelhos/pretos que herdam a espessura do grupo de fios (sem stroke-width próprio). */
+function wiresOf(svg) {
+  return [...walk(svg)]
+    .filter((n) => n.name === 'path' && [RED, BLACK].includes(n.attrs.stroke) && !('stroke-width' in n.attrs))
+    .map((n) => {
+      const pts = pathPoints(n.attrs.d);
+      return { color: n.attrs.stroke, d: n.attrs.d, pts, ends: [pts[0], pts.at(-1)] };
+    });
+}
+
+/** Rótulo de texto exato dentro do grupo de um slot (os nomes dos pontos ficam centrados no ponto). */
+function labelIn(svg, slot, text) {
+  const g = [...walk(svg)].find((n) => n.attrs['data-slot'] === slot);
+  const found = [...walk(g)].filter((n) => n.name === 'text' && n.text.trim() === text);
+  assert.equal(found.length, 1, `${slot}: rótulo "${text}"`);
+  return { x: Number(found[0].attrs.x), y: Number(found[0].attrs.y) };
+}
+
+// A ponta do fio está no ponto do rótulo: mesmo x (texto centrado) e logo acima/abaixo dele.
+const atPad = (p, pad) => p[0] === pad.x && Math.abs(p[1] - pad.y) <= 30;
+const links = (wires, color, a, b) => wires.some((w) => w.color === color
+  && ((atPad(w.ends[0], a) && atPad(w.ends[1], b)) || (atPad(w.ends[0], b) && atPad(w.ends[1], a))));
+
+function segmentsCross(a, b, c, d) {
+  const o = (p, q, r) => Math.sign((q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]));
+  const on = (p, q, r) => Math.min(p[0], r[0]) <= q[0] && q[0] <= Math.max(p[0], r[0])
+    && Math.min(p[1], r[1]) <= q[1] && q[1] <= Math.max(p[1], r[1]);
+  const [o1, o2, o3, o4] = [o(a, b, c), o(a, b, d), o(c, d, a), o(c, d, b)];
+  if (o1 !== o2 && o3 !== o4) return true;
+  return (o1 === 0 && on(a, c, b)) || (o2 === 0 && on(a, d, b)) || (o3 === 0 && on(c, a, d)) || (o4 === 0 && on(c, b, d));
+}
+
+test('p4-tp4056: ponta do TP4056 na ordem da placa (OUT+, B+, B−, OUT−) e cada fio no ponto certo', () => {
+  // Ordem conferida na foto assets/photos/tp4056-dw01.webp (placa 03962A): OUT+, B+, B−, OUT− na ponta de saída;
+  // + e − da entrada na ponta oposta, o + do mesmo lado do OUT+. Fonte da ligação: guia-repeater-xiao-solar.md §2.
+  const svg = parseXml(read('assets/svg/drawings/p4-tp4056.svg'));
+  const pad = (slot, t) => labelIn(svg, slot, t);
+  const out = ['OUT+', 'B+', 'B−', 'OUT−'].map((t) => pad('carregador', t));
+  assert.ok(out.every((p) => p.y === out[0].y), 'os 4 pontos de saída na mesma ponta');
+  assert.ok(out.every((p, i) => i === 0 || p.x > out[i - 1].x), 'ordem OUT+, B+, B−, OUT−');
+  const inP = pad('carregador', 'IN+');
+  const inN = pad('carregador', 'IN−');
+  assert.ok(inP.y === inN.y && inP.y > out[0].y, 'entrada na ponta oposta à saída');
+  assert.equal(Math.sign(inN.x - inP.x), Math.sign(out[3].x - out[0].x), 'IN+ do mesmo lado do OUT+');
+
+  const wires = wiresOf(svg);
+  assert.ok(links(wires, RED, pad('carregador', 'OUT+'), pad('placa', 'BAT+')), 'vermelho: OUT+ no BAT+ da XIAO');
+  assert.ok(links(wires, BLACK, pad('carregador', 'OUT−'), pad('placa', 'BAT−')), 'preto: OUT− no BAT− da XIAO');
+  assert.ok(links(wires, RED, pad('carregador', 'B+'), pad('bateria', '+')), 'vermelho: B+ no + da bateria');
+  assert.ok(links(wires, BLACK, pad('carregador', 'B−'), pad('bateria', '−')), 'preto: B− no − da bateria');
+
+  // Painel: cada fio sai da borda de baixo do painel, do lado do rótulo da sua cor.
+  const red = wires.find((w) => w.color === RED && w.ends.some((p) => atPad(p, inP)));
+  const black = wires.find((w) => w.color === BLACK && w.ends.some((p) => atPad(p, inN)));
+  assert.ok(red && black, 'painel nos pontos IN+ (vermelho) e IN− (preto)');
+  const top = (w) => (w.ends[0][1] < w.ends[1][1] ? w.ends[0] : w.ends[1]);
+  const panel = [...walk(svg)].find((n) => n.attrs['data-slot'] === 'painel').children.find((n) => n.name === 'rect');
+  const panelBottom = Number(panel.attrs.y) + Number(panel.attrs.height);
+  assert.ok(top(red)[1] === panelBottom && top(black)[1] === panelBottom, 'fios saem do painel');
+  assert.equal(Math.sign(top(red)[0] - top(black)[0]), Math.sign(pad('painel', '+').x - pad('painel', '−').x), 'rótulo + do painel do lado do fio vermelho');
+});
+
+test('projeto 4: nenhum fio cruza outro nem passa por cima da bateria', () => {
+  for (const id of ['p4-tp4056', 'p4-cn3791-bms']) {
+    const svg = parseXml(read(`assets/svg/drawings/${id}.svg`));
+    const wires = wiresOf(svg);
+    assert.ok(wires.length >= 6, `${id}: fios`);
+    const segs = wires.map((w) => w.pts.slice(1).map((p, i) => [w.pts[i], p]));
+    for (const s of segs.flat()) assert.ok(s[0][0] === s[1][0] || s[0][1] === s[1][1], `${id}: fio só na horizontal/vertical`);
+    for (let i = 0; i < segs.length; i++) {
+      for (let j = i + 1; j < segs.length; j++) {
+        for (const [a, b] of segs[i]) {
+          for (const [c, d] of segs[j]) {
+            assert.ok(!segmentsCross(a, b, c, d), `${id}: fio ${wires[i].d} cruza ${wires[j].d}`);
+          }
+        }
+      }
+    }
+    // corpo da bateria: o maior rect pintado do grupo
+    const g = [...walk(svg)].find((n) => n.attrs['data-slot'] === 'bateria');
+    const body = g.children.filter((n) => n.name === 'rect' && n.attrs.fill)
+      .map((n) => ['x', 'y', 'width', 'height'].map((k) => Number(n.attrs[k])))
+      .sort((p, q) => q[2] * q[3] - p[2] * p[3])[0];
+    const [bx, by, bw, bh] = body;
+    for (const [a, b] of segs.flat()) {
+      const inside = a[0] === b[0]
+        ? bx < a[0] && a[0] < bx + bw && Math.max(Math.min(a[1], b[1]), by) < Math.min(Math.max(a[1], b[1]), by + bh)
+        : by < a[1] && a[1] < by + bh && Math.max(Math.min(a[0], b[0]), bx) < Math.min(Math.max(a[0], b[0]), bx + bw);
+      assert.ok(!inside, `${id}: fio passa por cima da bateria (${a} → ${b})`);
+    }
+  }
+});
+
+test('cabo da antena: o slot cobre o pigtail (U.FL até o SMA) e o cabo coaxial até a antena', () => {
+  // Cabo longo (RG-58, LMR-400) não entra no U.FL: a saída da caixa é sempre o pigtail (guia §1 item 2;
+  // hardware-energia.md "Antenas"). O coaxial só existe se a antena ficar longe da caixa.
+  for (const { project, id, path } of drawings) {
+    if (!project.slots.cabo) continue;
+    const svg = parseXml(read(path));
+    const nodes = [...walk(svg)];
+    const g = nodes.find((n) => n.attrs['data-slot'] === 'cabo');
+    const t = allText(g);
+    for (const s of ['Cabo da antena', 'pigtail do U.FL até o SMA', 'cabo coaxial até a antena', '(se a antena ficar longe da caixa)', 'pode ser longo', 'SMA']) {
+      assert.ok(t.includes(s), `${id}: falta "${s}" no slot do cabo`);
+    }
+    // o destaque do cabo vai do pé da antena até dentro da caixa (passa pela parede de cima)
+    const box = (rid) => {
+      const a = nodes.find((n) => n.attrs.id === rid).attrs;
+      return { y0: Number(a.y), y1: Number(a.y) + Number(a.height) };
+    };
+    const [cabo, antena, caixa] = [box('hl-cabo'), box('hl-antena'), box('hl-caixa')];
+    assert.ok(cabo.y0 >= antena.y1 && cabo.y0 - antena.y1 <= 6, `${id}: destaque do cabo começa no pé da antena`);
+    assert.ok(cabo.y0 < caixa.y0 && cabo.y1 > caixa.y0, `${id}: destaque do cabo atravessa a parede da caixa`);
+  }
+});
+
 test('projeto 3: fonte USB 5 V na porta USB-C e antena pelo conector IPEX', () => {
   for (const [id, board] of [['p3-t114', 'Heltec T114'], ['p3-v3', 'Heltec V3']]) {
     const t = allText(parseXml(read(`assets/svg/drawings/${id}.svg`)));

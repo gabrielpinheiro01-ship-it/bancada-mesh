@@ -162,6 +162,48 @@ test('desenho: largura cabe na página A4 e o alto respeita a proporção', () =
   assert.equal(node.font, 'Atkinson');
 });
 
+test('desenho: sozinho na página, grande o bastante para ler os pontos de solda impressos (≥ 8 pt)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const { DRAWING_MAX_H } = await import('../src/core/pdfdoc.js');
+  const cases = [
+    [p4(), 'p4-tp4056'],
+    [p4({ carregador: 'cn3791-bms' }), 'p4-cn3791-bms'],
+    [createState(3), 'p3-t114'],
+    [swapPart(createState(3), 'placa', 'heltec-v3'), 'p3-v3'],
+  ];
+  for (const [state, id] of cases) {
+    const text = readFileSync(new URL(`../assets/svg/drawings/${id}.svg`, import.meta.url), 'utf8');
+    const [, w, h] = /viewBox="0 0 (\d+) (\d+)"/.exec(text).map(Number);
+    const dd = build(state, text);
+    const node = [...walk(dd.content)].find((n) => n && typeof n.svg === 'string');
+    const height = (node.width * h) / w;
+    assert.ok(height <= DRAWING_MAX_H + 0.01, `${id}: alto ${height}`);
+    assert.ok(height >= DRAWING_MAX_H - 0.01 || node.width >= 514, `${id}: usa o espaço da página`);
+    // nomes dos pontos (IN+, OUT−, BAT+, P+…) têm font-size 16 no viewBox
+    if (id.startsWith('p4')) assert.ok((16 * node.width) / w >= 8, `${id}: ponto de solda com ${((16 * node.width) / w).toFixed(2)} pt`);
+  }
+  // Título + desenho + legenda ("Peças marcadas" em até 2 linhas) cabem na mesma A4 (conferido gerando o PDF).
+  const dd = build(p4(), SVG);
+  const [, top, , bottom] = dd.pageMargins;
+  assert.ok(dd.pageSize.height - top - bottom - DRAWING_MAX_H >= 90, 'espaço para o título e a legenda');
+  assert.ok(DRAWING_MAX_H >= 600, 'desenho ocupa a página');
+});
+
+test('desenho: o título "Alertas" anda junto com o primeiro alerta (desce para a página seguinte se não couber)', () => {
+  const page = buildPdfPages({ state: p4(), svgText: SVG, generatedAt: DATE }).find((p) => p.title === 'Ligação');
+  const i = page.content.findIndex((n) => n.unbreakable && n.stack?.[0]?.text === 'Alertas');
+  assert.ok(i > 0, 'bloco "Alertas" inseparável');
+  assert.equal(page.content[i].stack.length, 2, 'título + primeiro alerta');
+  assert.ok(page.content.slice(0, i).some((n) => typeof n.svg === 'string'), 'desenho antes dos alertas');
+});
+
+test('compras: cabo longo também pede o pigtail U.FL para SMA para sair da caixa', () => {
+  // guia-repeater-xiao-solar.md §1 item 2 (pigtail U.FL/IPEX → SMA, 10–15 cm) e hardware-energia.md "Antenas".
+  for (const id of ['rg58-3m', 'lmr400-3m']) {
+    assert.match(SHOPPING_TIPS[id], /pigtail U\.FL \(IPEX\) para SMA de 10 a 15 cm/, id);
+  }
+});
+
 test('alertas de bateria só nos projetos com bateria', () => {
   assert.ok(flat(p4(), SVG).includes('Teste a bateria antes de instalar'));
   assert.ok(!flat(createState(3), SVG).includes('Teste a bateria antes de instalar'));
