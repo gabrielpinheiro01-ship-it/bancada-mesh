@@ -4,9 +4,12 @@ import { PARTS } from '../data/parts.js';
 import { PROJECTS } from '../data/projects.js';
 import { calcEnergy } from './energy.js';
 import { ENERGY_RULES } from '../rules/energy.js';
+import { HARDWARE_RULES } from '../rules/hardware.js';
+import { INSTALL_RULES } from '../rules/install.js';
+import { CONFIG_RULES } from '../rules/config.js';
 
-/** Conjuntos de regras padrão; a Task 6 acrescenta os outros aqui. */
-export const DEFAULT_RULE_SETS = [ENERGY_RULES];
+/** Conjuntos de regras padrão. */
+export const DEFAULT_RULE_SETS = [ENERGY_RULES, HARDWARE_RULES, INSTALL_RULES, CONFIG_RULES];
 
 const ORDER = { bad: 0, warn: 1, ok: 2 };
 
