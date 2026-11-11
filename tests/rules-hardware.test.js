@@ -143,3 +143,29 @@ test('peça no slot aparelho (companion pronto) também é avaliada', () => {
   assert.equal(it.level, 'bad');
   assert.equal(it.slot, 'aparelho');
 });
+
+test('atributo ausente vira Atenção, nunca silêncio (HW-01, HW-02, HW-06, HW-13)', () => {
+  for (const v of [undefined, null, 'x', NaN]) {
+    const a = rule('HW-01').evaluate(withPart(base(), 'placa', { bandMhz: v }));
+    assert.equal(a.level, 'warn');
+    assert.match(a.why, /915 MHz/);
+    assert.equal(a.fix, undefined);
+  }
+  for (const extra of [{ bandMinMhz: undefined }, { bandMaxMhz: null }, { bandMinMhz: '915' }]) {
+    const a = rule('HW-02').evaluate(withPart(base(), 'antena', extra));
+    assert.equal(a.level, 'warn');
+    assert.equal(a.fix, undefined);
+  }
+  for (const v of [undefined, null, 'x', NaN]) {
+    const c = rule('HW-06').evaluate(withPart(base(), 'cabo', { type: 'RG-58', lengthM: v }));
+    assert.equal(c.level, 'warn');
+  }
+  assert.equal(rule('HW-06').evaluate(withPart(base(), 'cabo', { type: 'LMR-400', lengthM: undefined })), null);
+  const pa = { needs5V: true, outDbm: { 22: 30 }, peakMa: { 22: 1000 } };
+  for (const v of [undefined, null, '5']) {
+    const w = rule('HW-13').evaluate(withPart(base(), 'placa', { pa, supplyV: v }));
+    assert.equal(w.level, 'warn');
+    assert.match(w.why, /confirme que a alimentação é de 5 V/);
+  }
+  assert.equal(rule('HW-13').evaluate(withPart(base(), 'placa', { pa, supplyV: 3.3 })).level, 'bad');
+});

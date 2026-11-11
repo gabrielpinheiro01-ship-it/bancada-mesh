@@ -37,7 +37,11 @@ const HW01 = {
   id: 'HW-01', source: SRC.band, ...META_RULE,
   evaluate(ctx) {
     const b = boardOf(ctx);
-    if (!b || b.board.bandMhz === 915 || b.board.bandMhz == null) return null;
+    if (!b || b.board.bandMhz === 915) return null;
+    if (typeof b.board.bandMhz !== 'number' || !Number.isFinite(b.board.bandMhz)) {
+      return item(this, 'warn', b.slot, 'Faixa da placa não confirmada',
+        'Não sei em qual faixa esta placa opera: confira que é a versão 915 MHz. Uma placa 868 ou 433 MHz não conversa com a rede.');
+    }
     return item(this, 'bad', b.slot, `Placa na versão de ${b.board.bandMhz} MHz`,
       'A rede brasileira usa 915 MHz (923,125 MHz na prática). Uma placa 868 ou 433 MHz não conversa com a rede. Compre sempre a versão 915 MHz.',
       swapFix(ctx, b.slot, goodBoard));
@@ -48,7 +52,12 @@ const HW02 = {
   id: 'HW-02', source: SRC.antBand, ...META_RULE,
   evaluate(ctx) {
     const a = ctx.parts.antena;
-    if (!a || a.bandMinMhz == null || a.bandMaxMhz == null || coversBand(a)) return null;
+    if (!a) return null;
+    if (!Number.isFinite(a.bandMinMhz) || !Number.isFinite(a.bandMaxMhz) || typeof a.bandMinMhz !== 'number' || typeof a.bandMaxMhz !== 'number') {
+      return item(this, 'warn', 'antena', 'Faixa da antena não confirmada',
+        'Não sei em qual faixa esta antena opera: confira que é a versão 915 MHz (a rede usa 923,125 MHz). Uma antena de 868 MHz atende muito mal.');
+    }
+    if (coversBand(a)) return null;
     return item(this, 'bad', 'antena', 'Antena fora da faixa da rede',
       'A rede usa 923,125 MHz e esta antena não cobre essa frequência. Com ela o sinal fica fraco e o rádio pode se danificar. Use uma antena de 915 MHz.',
       swapFix(ctx, 'antena', (x) => x.bandMinMhz <= BAND_HZ && BAND_HZ <= x.bandMaxMhz && !x.homemade));
@@ -81,7 +90,12 @@ const HW06 = {
   id: 'HW-06', source: SRC.cable, ...META_RULE,
   evaluate(ctx) {
     const c = ctx.parts.cabo;
-    if (!c || c.type !== 'RG-58' || !(c.lengthM > 1)) return null;
+    if (!c || c.type !== 'RG-58') return null;
+    if (typeof c.lengthM !== 'number' || !Number.isFinite(c.lengthM)) {
+      return item(this, 'warn', 'cabo', 'Comprimento do cabo RG-58 desconhecido',
+        'O RG-58 perde cerca de 0,5 dB por metro em 900 MHz e não sei o comprimento deste cabo. Confira: acima de 1 m, prefira rádio perto da antena ou um cabo melhor (LMR-400 ou RG-213).');
+    }
+    if (!(c.lengthM > 1)) return null;
     return item(this, 'warn', 'cabo', 'Cabo RG-58 longo perde sinal',
       'O RG-58 perde cerca de 0,5 dB por metro em 900 MHz. É melhor deixar o rádio perto da antena com um cabo curto, ou usar um cabo melhor (LMR-400 ou RG-213).',
       swapFix(ctx, 'cabo', (x) => x.type !== 'RG-58' || x.lengthM <= 1));
@@ -147,7 +161,11 @@ const HW13 = {
   id: 'HW-13', source: SRC.rak, ...META_RULE,
   evaluate(ctx) {
     const b = boardOf(ctx);
-    if (!b || !b.board.pa || b.board.pa.needs5V !== true || b.board.supplyV !== 3.3) return null;
+    if (!b || !b.board.pa || b.board.pa.needs5V !== true || b.board.supplyV === 5) return null;
+    if (b.board.supplyV !== 3.3) {
+      return item(this, 'warn', b.slot, 'Confirme a alimentação do amplificador',
+        'Este amplificador precisa de 5 V: confirme que a alimentação é de 5 V. Em 3,3 V o estágio de 1 W não funciona bem.');
+    }
     return item(this, 'bad', b.slot, 'Amplificador de 1 W alimentado em 3,3 V',
       'O estágio de 1 W do amplificador não funciona bem em 3,3 V. Use a alimentação de 5 V indicada pelo fabricante.');
   },
