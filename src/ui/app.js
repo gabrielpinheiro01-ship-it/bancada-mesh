@@ -4,6 +4,7 @@ import { createState } from '../core/state.js';
 import { PROJECTS } from '../data/projects.js';
 import { mountShell, stepOf, el } from './shell.js';
 import { renderProjectsStep } from './projects-step.js';
+import { renderBench } from './bench.js';
 import { renderPdfStep } from './pdf-step.js';
 
 let state = null;
@@ -17,18 +18,18 @@ function stateFor(route) {
   return state;
 }
 
-function marcador(title, text) {
-  return [el('h1', { class: 'titulo', tabindex: '-1' }, title), el('p', { class: 'texto' }, text)];
-}
-
-// Os passos 1, 2 e 3 são preenchidos pelas Tasks 11, 13 e 14: cada uma troca o renderizador abaixo.
 // Cada renderizador recebe (root, route, state) e escreve dentro de `root`.
 export const renderers = {
   projetos(root) {
     renderProjectsStep(root, () => {}); // a navegação é o próprio link #/bancada/<id>
   },
-  bancada(root, route) {
-    root.replaceChildren(...marcador('Monte na bancada', `Passo 2 em construção (projeto ${route.projectId}).`));
+  bancada(root, _route, st) {
+    // Cada mudança na bancada devolve um estado novo: o app guarda e a bancada se redesenha (sem trocar de rota).
+    const onChange = (next) => {
+      state = next;
+      renderBench(root, state, onChange);
+    };
+    renderBench(root, st, onChange);
   },
   pdf(root, route, st) {
     renderPdfStep(root, route, st);
