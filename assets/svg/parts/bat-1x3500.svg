@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" font-family="Atkinson Hyperlegible, Atkinson, sans-serif">
+  <title>1 bateria 18650 de marca (3500 mAh)</title>
+  <rect x="6" y="25" width="48" height="14" rx="7" fill="#4A6A8A" stroke="#0F172A" stroke-width="2"/>
+  <rect x="54" y="29" width="4" height="6" rx="1" fill="#0F172A"/>
+  <text x="30" y="36" font-size="10" font-weight="700" text-anchor="middle" fill="#FFFFFF">3500</text>
+</svg>

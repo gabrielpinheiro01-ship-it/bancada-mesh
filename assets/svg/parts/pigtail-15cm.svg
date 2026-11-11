@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" font-family="Atkinson Hyperlegible, Atkinson, sans-serif">
+  <title>Pigtail curto de 15 cm</title>
+  <path d="M12 48C12 22 50 42 50 18" fill="none" stroke="#B9822F" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="12" cy="50" r="4" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
+  <rect x="44" y="6" width="12" height="14" rx="2" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
+  <path d="M44 11H56M44 15H56" fill="none" stroke="#0F172A" stroke-width="1.5"/>
+</svg>

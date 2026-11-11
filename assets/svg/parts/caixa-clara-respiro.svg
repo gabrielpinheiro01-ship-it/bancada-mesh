@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" font-family="Atkinson Hyperlegible, Atkinson, sans-serif">
+  <title>Caixa clara com respiro</title>
+  <rect x="8" y="14" width="48" height="40" rx="4" fill="#FFFFFF" stroke="#0F172A" stroke-width="2"/>
+  <path d="M8 23H56" fill="none" stroke="#0F172A" stroke-width="2"/>
+  <rect x="38" y="40" width="12" height="8" rx="2" fill="#FFFFFF" stroke="#0F172A" stroke-width="2"/>
+  <path d="M42 42V46M46 42V46" fill="none" stroke="#0F172A" stroke-width="1.5"/>
+</svg>

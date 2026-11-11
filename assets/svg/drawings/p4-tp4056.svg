@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 1124" font-family="Atkinson Hyperlegible, Atkinson, sans-serif">
+  <title>Ligação do repetidor solar XIAO com carregador TP4056 e proteção DW01</title>
+  <desc>Painel solar nos pontos IN+ e IN− do TP4056. Bateria (pack 1S, células em paralelo) nos pontos B+ e B−. XIAO, pelos pads BAT+ e BAT− que ficam embaixo da placa, nos pontos OUT+ e OUT−. Wio-SX1262 encaixado na XIAO. Cabo da antena do conector U.FL até o SMA na caixa, onde rosqueia a antena de 915 MHz. O cabo do painel entra pelo prensa-cabo, com a curva para baixo. Fio vermelho é positivo; fio preto é negativo.</desc>
+
+  <!-- Caixa (fundo): prensa-cabo e respiro na parede de baixo -->
+  <g data-slot="caixa" tabindex="0" role="button" aria-label="Caixa">
+    <rect x="84" y="300" width="532" height="620" rx="16" fill="#FFFFFF" stroke="#0F172A" stroke-width="2"/>
+    <text x="100" y="330" font-size="18" font-weight="700" fill="#0F172A">Caixa</text>
+    <rect x="130" y="908" width="80" height="24" rx="4" fill="#94A3B8" stroke="#0F172A" stroke-width="2"/>
+    <text x="222" y="950" font-size="15" fill="#475569">prensa-cabo</text>
+    <text x="222" y="980" font-size="15" fill="#475569">pingadeira (curva para baixo)</text>
+    <rect x="470" y="909" width="44" height="22" rx="4" fill="#FFFFFF" stroke="#0F172A" stroke-width="2"/>
+    <path d="M482 914V926M492 914V926M502 914V926" fill="none" stroke="#0F172A" stroke-width="2"/>
+    <text x="492" y="954" font-size="15" text-anchor="middle" fill="#475569">respiro</text>
+    <rect id="hl-caixa" x="78" y="294" width="544" height="632" rx="20" fill-opacity="0"/>
+  </g>
+
+  <!-- Fios: vermelho = +, preto = − -->
+  <g fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M40 196V976H190V868" stroke="#C0262D"/>
+    <path d="M60 196V960H150V868" stroke="#0F172A"/>
+    <path d="M390 792V714" stroke="#C0262D"/>
+    <path d="M450 792V714" stroke="#0F172A"/>
+    <path d="M180 792V534" stroke="#C0262D"/>
+    <path d="M316 792V534" stroke="#0F172A"/>
+  </g>
+
+  <g data-slot="painel" tabindex="0" role="button" aria-label="Painel solar">
+    <text x="24" y="40" font-size="20" font-weight="700" fill="#0F172A">Painel solar 6 V</text>
+    <rect x="24" y="56" width="230" height="140" rx="4" fill="#1F3A5C" stroke="#0F172A" stroke-width="2"/>
+    <path d="M81 58V194M139 58V194M196 58V194M26 126H252" fill="none" stroke="#6E8FB5" stroke-width="2"/>
+    <text x="32" y="246" font-size="22" font-weight="700" text-anchor="end" fill="#0F172A">+</text>
+    <text x="68" y="246" font-size="22" font-weight="700" fill="#0F172A">−</text>
+    <rect id="hl-painel" x="16" y="18" width="246" height="186" rx="8" fill-opacity="0"/>
+  </g>
+
+  <g data-slot="antena" tabindex="0" role="button" aria-label="Antena">
+    <text x="548" y="70" font-size="20" font-weight="700" text-anchor="end" fill="#0F172A">Antena</text>
+    <text x="548" y="94" font-size="20" font-weight="700" text-anchor="end" fill="#0F172A">915 MHz</text>
+    <rect x="564" y="48" width="16" height="226" rx="8" fill="#0F172A" stroke="#0F172A" stroke-width="2"/>
+    <rect x="561" y="270" width="22" height="16" rx="2" fill="#475569" stroke="#0F172A" stroke-width="2"/>
+    <rect id="hl-antena" x="555" y="40" width="34" height="240" rx="8" fill-opacity="0"/>
+  </g>
+
+  <g data-slot="cabo" tabindex="0" role="button" aria-label="Cabo da antena">
+    <path d="M522 432V350H572V314" fill="none" stroke="#B9822F" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="558" y="286" width="28" height="28" rx="3" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
+    <text x="552" y="296" font-size="15" text-anchor="end" fill="#475569">SMA</text>
+    <text x="512" y="362" font-size="15" font-weight="700" text-anchor="end" fill="#0F172A">Cabo da antena</text>
+    <text x="512" y="382" font-size="15" text-anchor="end" fill="#475569">do U.FL até o SMA</text>
+    <rect id="hl-cabo" x="400" y="282" width="196" height="106" rx="8" fill-opacity="0"/>
+  </g>
+
+  <g data-slot="placa" tabindex="0" role="button" aria-label="Placa">
+    <text x="148" y="406" font-size="16" font-weight="700" fill="#0F172A">Placa XIAO + Wio-SX1262</text>
+    <rect x="148" y="420" width="200" height="120" rx="6" fill="#2B3440" stroke="#0F172A" stroke-width="2"/>
+    <rect x="140" y="446" width="12" height="30" rx="2" fill="#94A3B8" stroke="#0F172A" stroke-width="2"/>
+    <text x="158" y="440" font-size="13" fill="#FFFFFF">USB-C</text>
+    <text x="256" y="452" font-size="20" font-weight="700" text-anchor="middle" fill="#FFFFFF">XIAO</text>
+    <text x="256" y="476" font-size="15" text-anchor="middle" fill="#FFFFFF">pads BAT+ e BAT−</text>
+    <text x="256" y="496" font-size="15" text-anchor="middle" fill="#FFFFFF">embaixo da placa</text>
+    <rect x="172" y="526" width="16" height="16" rx="2" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
+    <rect x="308" y="526" width="16" height="16" rx="2" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
+    <text x="180" y="522" font-size="16" font-weight="700" text-anchor="middle" fill="#FFFFFF">BAT+</text>
+    <text x="316" y="522" font-size="16" font-weight="700" text-anchor="middle" fill="#FFFFFF">BAT−</text>
+    <rect x="348" y="436" width="16" height="88" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
+    <path d="M348 452H364M348 468H364M348 484H364M348 500H364" fill="none" stroke="#0F172A" stroke-width="2"/>
+    <rect x="364" y="420" width="180" height="120" rx="6" fill="#4B5563" stroke="#0F172A" stroke-width="2"/>
+    <text x="444" y="470" font-size="18" font-weight="700" text-anchor="middle" fill="#FFFFFF">Wio-SX1262</text>
+    <text x="444" y="494" font-size="15" text-anchor="middle" fill="#FFFFFF">encaixado na XIAO</text>
+    <circle cx="522" cy="432" r="7" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
+    <text x="508" y="437" font-size="15" text-anchor="end" fill="#FFFFFF">U.FL</text>
+    <rect id="hl-placa" x="134" y="390" width="416" height="158" rx="10" fill-opacity="0"/>
+  </g>
+
+  <g data-slot="bateria" tabindex="0" role="button" aria-label="Bateria">
+    <rect x="344" y="590" width="216" height="124" rx="14" fill="#4A6A8A" stroke="#0F172A" stroke-width="2"/>
+    <text x="452" y="622" font-size="20" font-weight="700" text-anchor="middle" fill="#FFFFFF">Bateria 18650</text>
+    <text x="452" y="646" font-size="15" text-anchor="middle" fill="#FFFFFF">pack 1S</text>
+    <text x="452" y="666" font-size="15" text-anchor="middle" fill="#FFFFFF">(células em paralelo)</text>
+    <text x="390" y="698" font-size="20" font-weight="700" text-anchor="middle" fill="#FFFFFF">+</text>
+    <text x="450" y="698" font-size="20" font-weight="700" text-anchor="middle" fill="#FFFFFF">−</text>
+    <rect x="382" y="706" width="16" height="16" rx="2" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
+    <rect x="442" y="706" width="16" height="16" rx="2" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
+    <rect id="hl-bateria" x="338" y="584" width="228" height="144" rx="16" fill-opacity="0"/>
+  </g>
+
+  <g data-slot="carregador" tabindex="0" role="button" aria-label="Carregador solar">
+    <rect x="108" y="780" width="452" height="100" rx="6" fill="#2647A8" stroke="#0F172A" stroke-width="2"/>
+    <rect x="172" y="784" width="16" height="16" rx="2" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
+    <rect x="308" y="784" width="16" height="16" rx="2" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
+    <rect x="382" y="784" width="16" height="16" rx="2" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
+    <rect x="442" y="784" width="16" height="16" rx="2" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
+    <rect x="142" y="860" width="16" height="16" rx="2" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
+    <rect x="182" y="860" width="16" height="16" rx="2" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
+    <g font-size="16" font-weight="700" text-anchor="middle" fill="#FFFFFF">
+      <text x="180" y="818">OUT+</text>
+      <text x="316" y="818">OUT−</text>
+      <text x="390" y="818">B+</text>
+      <text x="450" y="818">B−</text>
+      <text x="150" y="852">IN−</text>
+      <text x="190" y="852">IN+</text>
+    </g>
+    <text x="390" y="848" font-size="18" font-weight="700" text-anchor="middle" fill="#FFFFFF">Carregador TP4056</text>
+    <text x="390" y="868" font-size="15" text-anchor="middle" fill="#FFFFFF">com proteção DW01</text>
+    <rect id="hl-carregador" x="102" y="774" width="464" height="112" rx="10" fill-opacity="0"/>
+  </g>
+
+  <!-- Alerta da antena -->
+  <g>
+    <rect x="292" y="116" width="248" height="76" rx="8" fill="#FFFFFF" stroke="#0F172A" stroke-width="2"/>
+    <path d="M326 130L348 170H304Z" fill="#0F172A" stroke="#0F172A" stroke-width="2" stroke-linejoin="round"/>
+    <text x="326" y="164" font-size="20" font-weight="700" text-anchor="middle" fill="#FFFFFF">!</text>
+    <text x="360" y="148" font-size="19" font-weight="700" fill="#0F172A">Nunca ligue</text>
+    <text x="360" y="174" font-size="19" font-weight="700" fill="#0F172A">sem a antena</text>
+    <path d="M540 154H554" fill="none" stroke="#0F172A" stroke-width="2"/>
+    <path d="M554 147L563 154L554 161Z" fill="#0F172A"/>
+  </g>
+
+  <!-- Legenda -->
+  <path d="M24 1016H64" fill="none" stroke="#C0262D" stroke-width="5" stroke-linecap="round"/>
+  <path d="M330 1016H370" fill="none" stroke="#0F172A" stroke-width="5" stroke-linecap="round"/>
+  <g font-size="16" fill="#0F172A">
+    <text x="76" y="1022">fio vermelho = + (positivo)</text>
+    <text x="382" y="1022">fio preto = − (negativo)</text>
+    <text x="24" y="1052">Siga o nome impresso ao lado de cada ponto (IN+, B+, OUT+…).</text>
+    <text x="24" y="1078">Confira a polaridade 3 vezes com o multímetro antes de ligar.</text>
+    <text x="24" y="1104">Painel nunca direto no USB-C da XIAO.</text>
+  </g>
+</svg>

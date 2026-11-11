@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" font-family="Atkinson Hyperlegible, Atkinson, sans-serif">
+  <title>RAK WisMesh Tag</title>
+  <path d="M26 14V6H38V14" fill="none" stroke="#0F172A" stroke-width="2"/>
+  <rect x="10" y="12" width="44" height="46" rx="14" fill="#2B3440" stroke="#0F172A" stroke-width="2"/>
+  <circle cx="32" cy="36" r="7" fill="#4B5563" stroke="#0F172A" stroke-width="2"/>
+  <circle cx="44" cy="22" r="2.5" fill="#94A3B8"/>
+</svg>

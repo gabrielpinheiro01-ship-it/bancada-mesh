@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" font-family="Atkinson Hyperlegible, Atkinson, sans-serif">
+  <title>Kit XIAO nRF52840 + Wio-SX1262</title>
+  <rect x="15" y="6" width="12" height="7" rx="1.5" fill="#94A3B8" stroke="#0F172A" stroke-width="2"/>
+  <rect x="8" y="10" width="26" height="32" rx="3" fill="#2B3440" stroke="#0F172A" stroke-width="2"/>
+  <text x="21" y="24" font-size="10" font-weight="700" text-anchor="middle" fill="#FFFFFF">nRF</text>
+  <rect x="22" y="26" width="34" height="30" rx="3" fill="#4B5563" stroke="#0F172A" stroke-width="2"/>
+  <circle cx="50" cy="32" r="3" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
+  <text x="38" y="49" font-size="9" font-weight="700" text-anchor="middle" fill="#FFFFFF">LoRa</text>
+</svg>

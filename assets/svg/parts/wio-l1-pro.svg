@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" font-family="Atkinson Hyperlegible, Atkinson, sans-serif">
+  <title>Seeed Wio Tracker L1 Pro</title>
+  <rect x="12" y="6" width="40" height="52" rx="8" fill="#2B3440" stroke="#0F172A" stroke-width="2"/>
+  <rect x="18" y="12" width="28" height="18" rx="2" fill="#E2E8F0" stroke="#0F172A" stroke-width="2"/>
+  <circle cx="24" cy="43" r="3" fill="#94A3B8" stroke="#0F172A" stroke-width="2"/>
+  <circle cx="32" cy="43" r="3" fill="#94A3B8" stroke="#0F172A" stroke-width="2"/>
+  <circle cx="40" cy="43" r="3" fill="#94A3B8" stroke="#0F172A" stroke-width="2"/>
+</svg>

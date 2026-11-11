@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" font-family="Atkinson Hyperlegible, Atkinson, sans-serif">
+  <title>Heltec Mesh Node T114</title>
+  <rect x="6" y="14" width="52" height="36" rx="3" fill="#2B3440" stroke="#0F172A" stroke-width="2"/>
+  <rect x="3" y="26" width="7" height="12" rx="1.5" fill="#94A3B8" stroke="#0F172A" stroke-width="2"/>
+  <circle cx="50" cy="21" r="3" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
+  <text x="32" y="41" font-size="12" font-weight="700" text-anchor="middle" fill="#FFFFFF">T114</text>
+</svg>

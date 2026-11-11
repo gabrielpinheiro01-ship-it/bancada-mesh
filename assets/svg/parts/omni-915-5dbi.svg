@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" font-family="Atkinson Hyperlegible, Atkinson, sans-serif">
+  <title>Antena omni 915 MHz 5 dBi</title>
+  <rect x="14" y="10" width="10" height="40" rx="5" fill="#E2E8F0" stroke="#0F172A" stroke-width="2"/>
+  <rect x="13" y="50" width="12" height="8" rx="1" fill="#B9822F" stroke="#0F172A" stroke-width="2"/>
+  <text x="30" y="36" font-size="12" font-weight="700" fill="#0F172A">5 dBi</text>
+</svg>

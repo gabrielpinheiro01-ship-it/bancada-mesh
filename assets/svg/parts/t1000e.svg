@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" font-family="Atkinson Hyperlegible, Atkinson, sans-serif">
+  <title>Seeed SenseCAP T1000-E</title>
+  <rect x="8" y="10" width="48" height="44" rx="10" fill="#334155" stroke="#0F172A" stroke-width="2"/>
+  <rect x="44" y="14" width="6" height="10" rx="2" fill="#F5F6F8" stroke="#0F172A" stroke-width="2"/>
+  <circle cx="28" cy="34" r="7" fill="#94A3B8" stroke="#0F172A" stroke-width="2"/>
+  <circle cx="46" cy="44" r="2.5" fill="#E2E8F0"/>
+</svg>

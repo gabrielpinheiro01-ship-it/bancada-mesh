@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" font-family="Atkinson Hyperlegible, Atkinson, sans-serif">
+  <title>Painel solar 6 V 1 W</title>
+  <rect x="19" y="22" width="26" height="18" rx="2" fill="#1F3A5C" stroke="#0F172A" stroke-width="2"/>
+  <path d="M27 23V39M36 23V39M20 31H44" fill="none" stroke="#6E8FB5" stroke-width="1.5"/>
+  <text x="32" y="60" font-size="12" font-weight="700" text-anchor="middle" fill="#0F172A">1 W</text>
+</svg>

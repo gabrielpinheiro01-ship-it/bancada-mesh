@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" font-family="Atkinson Hyperlegible, Atkinson, sans-serif">
+  <title>Carregador solar CN3791 sem BMS</title>
+  <rect x="4" y="17" width="44" height="30" rx="3" fill="#2647A8" stroke="#0F172A" stroke-width="2"/>
+  <circle cx="24" cy="32" r="8" fill="#94A3B8" stroke="#0F172A" stroke-width="2"/>
+  <rect x="6" y="26" width="6" height="12" fill="#E2E8F0" stroke="#0F172A" stroke-width="1.5"/>
+  <rect x="40" y="26" width="6" height="12" fill="#E2E8F0" stroke="#0F172A" stroke-width="1.5"/>
+</svg>

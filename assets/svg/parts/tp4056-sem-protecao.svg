@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" font-family="Atkinson Hyperlegible, Atkinson, sans-serif">
+  <title>Carregador TP4056 sem proteção de descarga</title>
+  <rect x="6" y="16" width="52" height="32" rx="3" fill="#2647A8" stroke="#0F172A" stroke-width="2"/>
+  <rect x="2" y="26" width="8" height="12" rx="1.5" fill="#94A3B8" stroke="#0F172A" stroke-width="2"/>
+  <rect x="16" y="25" width="12" height="12" fill="#0F172A"/>
+  <g fill="#B9822F"><rect x="49" y="22" width="6" height="6"/><rect x="49" y="36" width="6" height="6"/></g>
+</svg>

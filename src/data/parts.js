@@ -1,6 +1,17 @@
 // Catálogo de peças. Atributos só onde a skill meshcore-hubreal sustenta.
-// Preço: só com fonte e data; sem fonte = sem campo `price`. Fotos entram depois.
+// Preço: só com fonte e data; sem fonte = sem campo `price`.
+// Foto: só da wiki da Seeed (CC BY-SA 4.0, https://wiki.seeedstudio.com/License/) ou do Wikimedia Commons (licença
+// do arquivo), conferida em 11/11/2026; `sourceUrl` é a página de origem. Sem foto livre = sem campo `photo`.
 // Fontes na skill (meshcore-hubreal/references/): hardware-energia.md e guia-repeater-xiao-solar.md.
+
+const SEEED = (file, page) => ({
+  file: `assets/photos/${file}.webp`, credit: 'Seeed Studio, Seeed Wiki (redimensionada)',
+  license: 'CC BY-SA 4.0', sourceUrl: page,
+});
+const COMMONS = (file, author, license, page) => ({
+  file: `assets/photos/${file}.webp`, credit: `${author}, Wikimedia Commons (redimensionada)`,
+  license, sourceUrl: `https://commons.wikimedia.org/wiki/File:${page}`,
+});
 
 const wio = (extra) => ({
   mcu: 'nrf52', currentMa: 10, bandMhz: 915, hasLoRa: true, bootlock: false, gps: false,
@@ -22,15 +33,18 @@ const parts = {
     slot: 'placa', name: 'Kit XIAO nRF52840 + Wio-SX1262', short: 'XIAO nRF52840',
     attrs: wio({}),
     price: { min: 100, max: 100, source: 'Mesh Sorocaba (hardware-energia.md)', date: '2026-04-27' },
+    photo: SEEED('xiao-nrf52840-wio', 'https://wiki.seeedstudio.com/xiao_nrf52840&_wio_SX1262_kit_for_meshtastic/'),
   },
   'xiao-esp32s3-wio': {
     slot: 'placa', name: 'Kit XIAO ESP32-S3 + Wio-SX1262', short: 'XIAO ESP32-S3',
     attrs: wio({ mcu: 'esp32', currentMa: 45, wifi: true }),
+    photo: SEEED('xiao-esp32s3-wio', 'https://wiki.seeedstudio.com/wio_sx1262_with_xiao_esp32s3_kit/'),
   },
   'xiao-nrf52840-sem-wio': {
     slot: 'placa', name: 'XIAO nRF52840 sozinha (sem módulo Wio-SX1262)', short: 'XIAO sem Wio',
     counterexample: true,
     attrs: wio({ hasLoRa: false }),
+    photo: SEEED('xiao-nrf52840-sem-wio', 'https://wiki.seeedstudio.com/XIAO_BLE/'),
   },
 
   // --- Baterias (pack 1S, células em paralelo; hardware-energia.md "Armadilhas físicas") ---
@@ -52,6 +66,8 @@ const parts = {
   'tp4056-dw01': {
     slot: 'carregador', name: 'Carregador TP4056 com proteção DW01 (saída OUT+/OUT−)', short: 'TP4056 + DW01',
     attrs: { dischargeProtection: true, mppt: false, wiring: 'tp4056-out' },
+    // a foto mostra a placa com TP4056, DW01A e 8205A (descrição do arquivo no Commons)
+    photo: COMMONS('tp4056-dw01', '-stk', 'CC BY-SA 4.0', 'TP4056_board_P1089956.jpg'),
   },
   'cn3791-bms': {
     slot: 'carregador', name: 'Carregador solar CN3791 + BMS 1S', short: 'CN3791 + BMS',
@@ -129,11 +145,13 @@ const parts = {
   'wio-l1-pro': {
     slot: 'aparelho', name: 'Seeed Wio Tracker L1 Pro', short: 'Wio Tracker L1 Pro',
     attrs: pocket({}), price: SOROCABA(380),
+    photo: COMMONS('wio-l1-pro', 'Sesivany', 'CC BY-SA 4.0', 'Wio_Tracker_L1_Pro.jpg'),
   },
   't1000e': {
     slot: 'aparelho', name: 'Seeed SenseCAP T1000-E', short: 'T1000-E',
     // a skill não traz preço do T1000-E
     attrs: pocket({}),
+    photo: COMMONS('t1000e', 'XoMEoX', 'CC BY 4.0', 'SenseCAP_Card_Tracker_T1000-E_for_Meshtastic.jpg'),
   },
   'wismesh-tag': {
     slot: 'aparelho', name: 'RAK WisMesh Tag', short: 'WisMesh Tag',

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" font-family="Atkinson Hyperlegible, Atkinson, sans-serif">
+  <title>2 baterias 18650 de marca (3500 mAh cada)</title>
+  <rect x="6" y="14" width="48" height="14" rx="7" fill="#4A6A8A" stroke="#0F172A" stroke-width="2"/>
+  <rect x="54" y="18" width="4" height="6" rx="1" fill="#0F172A"/>
+  <text x="30" y="25" font-size="10" font-weight="700" text-anchor="middle" fill="#FFFFFF">3500</text>
+  <rect x="6" y="36" width="48" height="14" rx="7" fill="#4A6A8A" stroke="#0F172A" stroke-width="2"/>
+  <rect x="54" y="40" width="4" height="6" rx="1" fill="#0F172A"/>
+  <text x="30" y="47" font-size="10" font-weight="700" text-anchor="middle" fill="#FFFFFF">3500</text>
+</svg>
