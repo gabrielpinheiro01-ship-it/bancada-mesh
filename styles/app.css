@@ -70,8 +70,8 @@ a { color: var(--azul-tinta); }
 }
 .botao:hover { background: var(--branco); color: var(--azul-tinta); }
 
-/* região viva da auditoria (Task 13): sem peso visual enquanto vazia */
-.resumo-auditoria:empty { display: none; }
+/* região viva da auditoria (Task 13): sempre na árvore de acessibilidade */
+.resumo-auditoria { margin: 0; padding: 0; border: 0; min-height: 0; } /* sempre renderizada (leitor de tela); vazia = sem espaço visual */
 
 /* rodapé */
 .rodape { padding-block: var(--esp-4) var(--esp-5); border-top: var(--borda); color: var(--texto-secundario); font-size: 0.9375rem; }
