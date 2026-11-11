@@ -76,13 +76,15 @@ const parts = {
     attrs: { bandMinMhz: 915, bandMaxMhz: 928, gainDbi: 5, homemade: false },
   },
   'antena-915-simples': {
-    slot: 'antena', name: 'Antena 915 MHz simples ("pretinha")', short: 'Pretinha 2 dBi',
-    attrs: { bandMinMhz: 915, bandMaxMhz: 928, gainDbi: 2, homemade: false },
+    slot: 'antena', name: 'Antena 915 MHz simples ("pretinha")', short: 'Pretinha',
+    // a skill não informa o ganho
+    attrs: { bandMinMhz: 915, bandMaxMhz: 928, gainDbi: null, homemade: false },
   },
   'antena-868': {
     slot: 'antena', name: 'Antena de 868 MHz', short: 'Antena 868',
     counterexample: true,
-    attrs: { bandMinMhz: 863, bandMaxMhz: 870, gainDbi: 3, homemade: false },
+    // a skill não informa o ganho
+    attrs: { bandMinMhz: 863, bandMaxMhz: 870, gainDbi: null, homemade: false },
   },
   'colinear-caseira': {
     slot: 'antena', name: 'Antena colinear caseira 915 MHz', short: 'Colinear caseira',
