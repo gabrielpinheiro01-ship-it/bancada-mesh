@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Esboço — Montador MeshCore (nome provisório)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F6F8; --surface:#FFFFFF; --ink:#0F172A; --ink-2:#475569; --line:#D5DBE3; --muted:#EEF1F5;
+  --primary:#1E3A8A; --primary-2:#2647A8; --primary-soft:#E7ECFA; --on-primary:#FFFFFF;
+  --ok:#15803D; --ok-bg:#E8F5EC; --warn:#A35400; --warn-bg:#FDF1DF; --bad:#B91C1C; --bad-bg:#FDECEC;
+  --board:#2B3440; --copper:#B9822F; --cell:#4A6A8A; --panel:#1F3A5C;
+  --r-sm:6px; --r-md:10px;
+  --font:"Atkinson Hyperlegible", system-ui, sans-serif; --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--primary-2);outline-offset:2px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:1280px;margin:0 auto;padding:16px}
+.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.top h1{font-size:20px;margin:0}
+.top p{margin:2px 0 0;color:var(--ink-2);font-size:14px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{border:1px solid var(--line);background:var(--surface);padding:8px 14px;border-radius:999px;min-height:44px}
+.tab[aria-selected="true"]{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.frame{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden}
+.sitebar{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);background:#FBFCFD}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700}
+.logo svg{flex:none}
+.sitebar .spacer{flex:1}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:14px;font-weight:700}
+.pill.ok{background:var(--ok-bg);color:var(--ok)} .pill.warn{background:var(--warn-bg);color:var(--warn)} .pill.bad{background:var(--bad-bg);color:var(--bad)}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px;border-radius:var(--r-sm);min-height:44px;font-weight:700}
+.btn.primary{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.btn.primary:hover{background:var(--primary-2)}
+.btn.small{min-height:36px;padding:6px 10px;font-size:14px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.hidden{display:none!important}
+.note{font-size:13px;color:var(--ink-2)}
+.sketchtag{font-size:12px;background:var(--muted);color:var(--ink-2);padding:2px 8px;border-radius:4px;font-weight:700;letter-spacing:.02em}
+
+/* ---------- A: assistente ---------- */
+.stepper{display:flex;gap:0;padding:14px 16px;border-bottom:1px solid var(--line);overflow-x:auto}
+.step{display:flex;align-items:center;gap:8px;padding:6px 12px;border:none;background:none;color:var(--ink-2);white-space:nowrap;min-height:44px;border-radius:var(--r-sm)}
+.step .n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--line);font-weight:700}
+.step[aria-current="step"]{color:var(--ink);font-weight:700}
+.step[aria-current="step"] .n{border-color:var(--primary);background:var(--primary);color:#fff}
+.step.done .n{border-color:var(--primary);color:var(--primary)}
+.step+.step::before{content:"";width:28px;height:2px;background:var(--line);margin-right:8px}
+.apane{padding:20px 16px;min-height:520px}
+.apane h2{margin:0 0 4px;font-size:22px}
+.apane .lead{margin:0 0 16px;color:var(--ink-2)}
+.grid7{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.pcard{border:2px solid var(--line);border-radius:var(--r-md);padding:12px;background:var(--surface);text-align:left;display:flex;flex-direction:column;gap:6px;min-height:170px}
+.pcard:hover{border-color:#9AA8BC}
+.pcard[aria-pressed="true"]{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+.pcard .lvl{font-size:13px;color:var(--ink-2)}
+.dots{display:inline-flex;gap:3px;vertical-align:middle}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);display:inline-block}
+.dots i.on{background:var(--primary)}
+.pcard h3{margin:0;font-size:17px}
+.pcard p{margin:0;font-size:14px;color:var(--ink-2)}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
+.tag{font-size:12px;border:1px solid var(--line);border-radius:4px;padding:1px 6px;color:var(--ink-2)}
+.navrow{display:flex;justify-content:space-between;gap:12px;padding:12px 16px;border-top:1px solid var(--line);background:#FBFCFD}
+.two{display:grid;grid-template-columns:1.25fr 1fr;gap:20px}
+@media (max-width:900px){.two{grid-template-columns:1fr}}
+.slot{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--muted)}
+.slot .ico{width:56px;height:44px;border-radius:var(--r-sm);background:var(--muted);display:grid;place-items:center}
+.slot .lbl{font-size:13px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+.slot select{font:inherit;padding:8px;border:1px solid var(--line);border-radius:var(--r-sm);min-height:44px;max-width:100%}
+.slot .st{font-size:13px;font-weight:700}
+.fieldset{border:1px solid var(--line);border-radius:var(--r-md);padding:12px;margin-top:12px}
+.fieldset legend{font-weight:700;padding:0 6px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{border:1px solid var(--line);background:var(--surface);padding:8px 12px;border-radius:var(--r-sm);min-height:44px}
+.seg button[aria-pressed="true"]{background:var(--primary-soft);border-color:var(--primary);color:var(--primary);font-weight:700}
+.numrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.numrow input{width:72px;font:inherit;padding:8px;border:1px solid var(--line);border-radius:var(--r-sm);min-height:44px}
+.energy{background:var(--muted);border-radius:var(--r-md);padding:12px}
+.bar{height:14px;background:#DCE2EA;border-radius:999px;position:relative;overflow:hidden;margin:6px 0}
+.bar>span{position:absolute;inset:0 auto 0 0;border-radius:999px}
+.bar .goal{position:absolute;top:-3px;bottom:-3px;width:3px;background:var(--ink)}
+
+/* audit list (shared) */
+.alist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.aitem{border:1px solid var(--line);border-left:6px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;background:var(--surface);cursor:pointer;text-align:left;width:100%}
+.aitem.bad{border-left-color:var(--bad);background:var(--bad-bg)}
+.aitem.warn{border-left-color:var(--warn);background:var(--warn-bg)}
+.aitem.ok{border-left-color:var(--ok)}
+.aitem .h{display:flex;gap:8px;align-items:flex-start;font-weight:700}
+.aitem .h svg{flex:none;margin-top:2px}
+.aitem .why{font-size:14px;color:var(--ink);margin:4px 0 0 28px}
+.aitem .fix{margin:8px 0 0 28px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.aitem.ok .why{color:var(--ink-2)}
+
+/* PDF preview */
+.pages{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin:12px 0}
+.page{aspect-ratio:210/297;border:1px solid var(--line);border-radius:4px;background:#fff;padding:10px;font-size:11px;display:flex;flex-direction:column;gap:5px;box-shadow:0 1px 2px rgba(15,23,42,.06)}
+.page b{font-size:12px}
+.page .ln{height:5px;background:var(--muted);border-radius:2px}
+.page .ln.s{width:60%}
+.page .warnbox{border:1.5px solid var(--bad);color:var(--bad);border-radius:3px;padding:3px;font-weight:700}
+
+/* ---------- B: bancada ---------- */
+.bench{display:grid;grid-template-columns:260px 1fr 320px;min-height:640px}
+@media (max-width:1100px){.bench{grid-template-columns:220px 1fr 280px}}
+.col{padding:12px;border-right:1px solid var(--line);overflow:auto;max-height:760px}
+.col:last-child{border-right:none}
+.col h3{font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2);margin:8px 0}
+.cat-group{margin-bottom:12px}
+.cat-item{display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:center;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:var(--r-sm);padding:6px 8px;margin-bottom:6px;min-height:52px}
+.cat-item .t{font-size:14px;line-height:1.25}
+.cat-item .s{font-size:12px;color:var(--ink-2)}
+.cat-item[aria-pressed="true"]{border-color:var(--primary);background:var(--primary-soft)}
+.cat-item .ic{width:44px;height:36px;background:var(--muted);border-radius:4px;display:grid;place-items:center}
+.stage{padding:12px;display:flex;flex-direction:column;gap:12px;border-right:1px solid var(--line)}
+.stage svg.assembly{width:100%;height:auto;background:
+  linear-gradient(var(--muted) 1px,transparent 1px) 0 0/20px 20px,
+  linear-gradient(90deg,var(--muted) 1px,transparent 1px) 0 0/20px 20px,#fff;border:1px solid var(--line);border-radius:var(--r-md)}
+.detail{border:1px solid var(--line);border-radius:var(--r-md);padding:12px;background:#FBFCFD}
+.detail h4{margin:0 0 4px}
+.gauge{margin-bottom:12px}
+.gauge .lbl{display:flex;justify-content:space-between;font-size:14px}
+
+/* SVG parts */
+.part{cursor:pointer}
+.part .hl{fill:none;stroke:transparent;stroke-width:3}
+.part.sel .hl{stroke:var(--primary);stroke-dasharray:none}
+.part.bad .hl{stroke:var(--bad);stroke-dasharray:7 5}
+.part.warn .hl{stroke:var(--warn);stroke-dasharray:7 5}
+.part .badge{display:none}
+.part.bad .badge,.part.warn .badge{display:block}
+.part.bad .badge circle{fill:var(--bad)} .part.warn .badge circle{fill:var(--warn)}
+.part:hover .body{filter:brightness(1.08)}
+.part:focus{outline:none} .part:focus-visible .hl{stroke:var(--primary-2);stroke-dasharray:none}
+@media (prefers-reduced-motion:no-preference){.part.bad .hl{animation:pulse 1.6s ease-in-out infinite}}
+@keyframes pulse{50%{stroke-width:5}}
+
+.choose{margin-top:16px;padding:16px;border:1px dashed #9AA8BC;border-radius:var(--r-md);background:var(--surface)}
+.choose h2{margin:0 0 8px;font-size:18px}
+.choices{display:flex;gap:10px;flex-wrap:wrap}
+.choices .btn[aria-pressed="true"]{outline:3px solid var(--primary)}
+
+/* palette tab */
+.sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.sw div{border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden;font-size:13px}
+.sw span{display:block;height:46px}
+.sw p{margin:0;padding:6px 8px}
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:900px){.verdict{grid-template-columns:1fr}}
+.verdict .box{border:1px solid var(--line);border-radius:var(--r-md);padding:14px;background:var(--surface)}
+.verdict h3{margin:0 0 6px}
+.verdict ul{margin:6px 0 0;padding-left:20px}
+.benchtabs{display:none;gap:6px;padding:8px 12px;border-bottom:1px solid var(--line)}
+.benchtabs button{flex:1;min-height:44px;border:1px solid var(--line);background:var(--surface);border-radius:var(--r-sm)}
+.benchtabs button[aria-selected="true"]{background:var(--primary);color:#fff;border-color:var(--primary)}
+@media (max-width:1100px) and (min-width:761px){.bench{grid-template-columns:210px 1fr 270px}}
+@media (max-width:760px){.benchtabs{display:flex}.bench{grid-template-columns:1fr}.bench>*{display:none;max-height:none;border-right:none}
+ .bench[data-show="cat"] .c-cat,.bench[data-show="stage"] .c-stage,.bench[data-show="aud"] .c-aud{display:block}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>Montador MeshCore <span class="sketchtag">ESBOÇO v2 · mistura · nome provisório</span></h1>
+      <p>O passo a passo da A, com a bancada da B no passo 2. A auditoria deixa de ser uma etapa separada: ela roda ao vivo na bancada.<br>No exemplo está o <b>projeto 4 (repetidor solar XIAO)</b>, com 2 peças trocadas de propósito para a auditoria ter o que apontar.</p>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-tab="A">Mistura (A + bancada)</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="P">Cores e letras</button>
+    </div>
+  </div>
+
+  <section id="viewA" class="frame" aria-label="Mistura">
+    <div class="sitebar">
+      <div class="logo"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="5" cy="20" r="3" fill="#1E3A8A"/><circle cx="13" cy="6" r="3" fill="#1E3A8A"/><circle cx="21" cy="20" r="3" fill="#1E3A8A"/><path d="M5 20 13 6 21 20Z" fill="none" stroke="#1E3A8A" stroke-width="1.6"/></svg>[nome do projeto]</div>
+      <span class="spacer"></span><span class="note">grátis · sem conta · funciona no navegador</span>
+    </div>
+    <nav class="stepper" aria-label="Etapas">
+      <button class="step" data-go="1"><span class="n">1</span>Escolha um projeto</button>
+      <button class="step" data-go="2"><span class="n">2</span>Monte na bancada</button>
+      <button class="step" data-go="4"><span class="n">3</span>Baixe o PDF</button>
+    </nav>
+
+    <div class="apane" data-pane="1">
+      <h2>O que você quer montar?</h2>
+      <p class="lead">Escolha um ponto de partida. Dá para trocar qualquer peça depois. Do mais simples (1 ponto) ao mais trabalhoso (5 pontos).</p>
+      <div class="grid7" id="projGrid"></div>
+    </div>
+
+    <div class="apane hidden" data-pane="2" style="padding:0">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)">
+        <div><h2 style="margin:0;font-size:20px">Repetidor solar XIAO: sua bancada</h2>
+        <p class="note" style="margin:2px 0 0">A lista inicial já funciona. Só troque se for usar outra peça: a auditoria confere na hora.</p></div>
+        <span id="statusB"></span>
+      </div>
+      <div class="benchtabs" role="tablist" aria-label="Partes da bancada">
+        <button data-bt="cat" aria-selected="false">Peças</button>
+        <button data-bt="stage" aria-selected="true">Montagem</button>
+        <button data-bt="aud" aria-selected="false">Auditoria</button>
+      </div>
+      <div class="bench" data-show="stage">
+        <aside class="col c-cat" aria-label="Catálogo de peças">
+          <h3>Trocar peça</h3>
+          <p class="note" style="margin-top:0">A peça em azul é a que está na montagem.</p>
+          <div id="catalogB"></div>
+        </aside>
+        <div class="stage c-stage">
+          <div id="svgHostB"></div>
+          <div class="detail" id="detailB"></div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap">
+            <div><b>Onde vai ficar?</b><div class="seg" id="localB" style="margin-top:6px"></div></div>
+            <div><b>Dias sem sol</b><div class="numrow" style="margin-top:6px"><input type="number" min="1" max="20" id="diasB" class="mono" aria-label="dias sem sol"> <span class="note">padrão 9</span></div></div>
+          </div>
+        </div>
+        <aside class="col c-aud" aria-label="Auditoria ao vivo">
+          <h3>Auditoria ao vivo</h3>
+          <div id="gaugesB"></div>
+          <ul class="alist" id="auditB"></ul>
+        </aside>
+      </div>
+    </div>
+
+    <div class="apane hidden" data-pane="4">
+      <h2>Seu guia de montagem</h2>
+      <p class="lead">Um PDF com tudo para montar sem internet. Nada fica salvo no site: se fechar a página, você começa de novo.</p>
+      <div id="pdfWarnA"></div>
+      <div class="pages" id="pagesA"></div>
+      <button class="btn primary" onclick="alert('Esboço: aqui o navegador gera e baixa o PDF.')">Baixar PDF</button>
+    </div>
+
+    <div class="navrow">
+      <button class="btn" id="backA">Voltar</button>
+      <button class="btn primary" id="nextA">Próximo</button>
+    </div>
+
+    <!-- elementos da versão A que o script ainda preenche; ficam escondidos -->
+    <div class="hidden" aria-hidden="true">
+      <div id="slotsA"></div><div id="localA"></div><p id="localNoteA"></p><input id="diasA"><div id="energyA"></div>
+      <p id="auditLeadA"></p><div id="svgHostA"></div><ul id="auditA"></ul><select id="projSelB"></select>
+    </div>
+  </section>
+
+  <!-- ===================== Palette ===================== -->
+  <section id="viewP" class="frame hidden" style="padding:16px" aria-label="Cores e letras">
+    <div class="verdict">
+      <div class="box">
+        <h3>A sugestão anterior não serve</h3>
+        <p class="note" style="margin:0">Poppins/Open Sans, roxo + verde, “vibrant block”, feita para “community landing”.</p>
+        <ul>
+          <li>É um padrão de <b>página de comunidade</b>, com número de membros e botão “entrar”. Aqui não tem conta nem login: é uma ferramenta.</li>
+          <li><b>Verde como botão</b> briga com o verde de “OK” da auditoria. Verde, laranja e vermelho precisam ficar reservados para o resultado.</li>
+          <li>Blocos coloridos grandes e animados disputam atenção com o destaque de problema, que precisa ser a coisa mais visível da tela.</li>
+          <li>Na Poppins, <span class="mono">l I 1</span> e <span class="mono">0 O</span> se confundem. Aqui a pessoa precisa ler “923,125” e copiar <span class="mono">set radio</span> sem errar um dígito.</li>
+        </ul>
+        <p class="note">Rodando de novo com “ferramenta técnica para iniciantes”, o gerador sugeriu neumorfismo (contraste baixo) e claymorphism com fonte infantil. Nenhum dos dois serve. Fiquei com a parte de acessibilidade das buscas.</p>
+      </div>
+      <div class="box">
+        <h3>Proposta: “folha de bancada”</h3>
+        <ul>
+          <li><b>Estilo plano</b> (o “Flat” do ui-ux-pro-max, que passa no WCAG AAA): fundo de papel, linhas finas e nada de sombra decorativa. Fica igual na tela e no PDF, e imprime bem em preto e branco.</li>
+          <li><b>Letra do texto:</b> <span style="font-family:var(--font);font-weight:700">Atkinson Hyperlegible</span>, feita para ler fácil, inclusive com pouca visão. Foi a sugestão “Accessibility First”.</li>
+          <li><b>Letra de números e comandos:</b> <span class="mono">JetBrains Mono · set radio 923.125,62.5,8,8</span>, com algarismos de largura fixa.</li>
+          <li><b>Azul-tinta</b> para botões e seleção. Verde, laranja e vermelho só aparecem no resultado da auditoria, e sempre com ícone e texto, nunca só pela cor.</li>
+          <li>Ilustrações das peças no mesmo traço: contorno de 2 px, cores chapadas, placa grafite, cobre nos conectores e fio vermelho/preto para +/−.</li>
+        </ul>
+      </div>
+    </div>
+    <h3 style="margin:18px 0 8px">Cores</h3>
+    <div class="sw">
+      <div><span style="background:#1E3A8A"></span><p><b>Azul-tinta</b> #1E3A8A<br>botões, seleção</p></div>
+      <div><span style="background:#0F172A"></span><p><b>Tinta</b> #0F172A<br>texto</p></div>
+      <div><span style="background:#F5F6F8"></span><p><b>Papel</b> #F5F6F8<br>fundo</p></div>
+      <div><span style="background:#15803D"></span><p><b>OK</b> #15803D<br>só resultado</p></div>
+      <div><span style="background:#A35400"></span><p><b>Atenção</b> #A35400<br>só resultado</p></div>
+      <div><span style="background:#B91C1C"></span><p><b>Problema</b> #B91C1C<br>só resultado</p></div>
+      <div><span style="background:#2B3440"></span><p><b>Placa</b> #2B3440<br>ilustração</p></div>
+      <div><span style="background:#B9822F"></span><p><b>Cobre</b> #B9822F<br>ilustração</p></div>
+    </div>
+    <p class="note">Todos os pares de texto passam de 4,5:1 sobre o fundo. O destaque de problema na ilustração é contorno tracejado + selo com número + item na lista, não só a cor.</p>
+  </section>
+
+  <div class="choose">
+    <h2>Ficou como você imaginou?</h2>
+    <p class="note" style="margin:0 0 8px">Para ver como fica no celular, estreite a janela: a bancada vira três abas (Peças · Montagem · Auditoria).</p>
+    <div class="choices">
+      <button class="btn" data-choice="mix-ok" onclick="pick(this)">Sim, é isso</button>
+      <button class="btn" data-choice="mix-ajustar" onclick="pick(this)">Quase, quero ajustar (conto no chat)</button>
+    </div>
+    <p class="note">Depois de clicar, responda no chat.</p>
+  </div>
+</div>
+
+<script>
+/* ---------------- dados do esboço (simplificados) ---------------- */
+const PROJECTS=[
+ {id:1,name:"Companion de bolso pronto",what:"Rádio pessoal que conversa com o app do celular. Sem solda.",lvl:1,tags:["sem solda","Wio Tracker L1 Pro / T1000-E"],cost:"R$ 380–450"},
+ {id:2,name:"Companion DIY Heltec V3",what:"Rádio pessoal barato. Precisa de bateria e caixinha à parte.",lvl:2,tags:["solda leve","ESP32"],cost:"R$ 290–350"},
+ {id:3,name:"Repetidor de varanda na tomada",what:"Fica do lado de fora e liga na tomada. Cobre a sua casa e a rua.",lvl:2,tags:["sem bateria","T114 ou Heltec V3"],cost:"R$ 250–400"},
+ {id:4,name:"Repetidor solar XIAO",what:"Fica no telhado o dia todo, com sol e bateria. O mais econômico.",lvl:3,tags:["solda","nRF52840","solar"],cost:"R$ 300–600"},
+ {id:5,name:"Repetidor solar T114",what:"Placa com carregador solar embutido, 3 baterias e painel de 9 W.",lvl:3,tags:["solda","nRF52840","solar"],cost:"R$ 450–700"},
+ {id:6,name:"Repetidor 1 W RAK solar",what:"Alcance maior, com amplificador. Exige mais bateria e mais cuidado.",lvl:4,tags:["1 W","RAK3401+13302","solar"],cost:"R$ 900+"},
+ {id:7,name:"Observer Wi-Fi",what:"Escuta a malha e manda para os mapas pela internet.",lvl:4,tags:["ESP32","Wi-Fi","tomada"],cost:"R$ 250–350"},
+];
+const SLOTS={
+ placa:{label:"Placa + rádio",opts:{
+   xiao:{t:"XIAO nRF52840 + Wio-SX1262",s:"~10 mA · R$ 80–130",mA:10,mcu:"nrf",foto:"Seeed wiki · CC BY-SA 4.0"},
+   t114:{t:"Heltec T114 (nRF52840)",s:"~10 mA · carregador solar na placa",mA:10,mcu:"nrf",foto:null},
+   v3:{t:"Heltec V3 (ESP32-S3)",s:"~45 mA · gasta mais",mA:45,mcu:"esp",foto:null}}},
+ bateria:{label:"Bateria",opts:{
+   b2:{t:"2× 18650 de marca 3.500 mAh",s:"em paralelo · 7.000 mAh",mAh:7000},
+   b1:{t:"1× 18650 de marca 3.500 mAh",s:"3.500 mAh",mAh:3500},
+   bf:{t:"2× 18650 “9.900 mAh” genérica",s:"anúncio de marketplace",mAh:19800,fake:true}}},
+ carregador:{label:"Carregador",opts:{
+   tpd:{t:"TP4056 com DW01",s:"tem saída OUT+/OUT− protegida",prot:true},
+   tps:{t:"TP4056 sem proteção",s:"só B+/B−",prot:false},
+   cn:{t:"CN3791 (MPPT)",s:"melhor no sol, sem proteção de descarga",prot:false,mppt:true}}},
+ painel:{label:"Painel solar",opts:{
+   p1:{t:"Painel 6 V · 1 W",s:"pequeno",W:1},
+   p3:{t:"Painel 6 V · 3 W",s:"recomendado",W:3},
+   p5:{t:"Painel 6 V · 5 W",s:"folga para chuva",W:5}}},
+ antena:{label:"Antena",opts:{
+   omni:{t:"Omni de fibra 915 MHz, 5 dBi",s:"915–928 MHz",band:915},
+   pre:{t:"“Pretinha” 915 MHz",s:"915–928 MHz · simples",band:915},
+   eu:{t:"Antena 868 MHz",s:"modelo europeu",band:868}}},
+ caixa:{label:"Caixa",opts:{
+   cv:{t:"Caixa IP65 clara + respiro + sílica",s:"recomendada"},
+   cs:{t:"Caixa IP65 sem respiro",s:"acumula umidade"}}},
+};
+const LOCAIS={tel:{t:"Telhado ou poste",tx:"0.5"},pre:{t:"Prédio ou morro baixo",tx:"1.0"},pico:{t:"Serra, pico ou torre",tx:"2.0"},den:{t:"Dentro de casa",tx:null}};
+const DEFAULT={placa:"xiao",bateria:"b2",carregador:"tpd",painel:"p3",antena:"omni",caixa:"cv",local:"tel",dias:9,hsp:4.2,diasSol:2};
+let S={...DEFAULT, carregador:"tps", painel:"p1"}; // começa com 2 problemas para mostrar a auditoria
+let selPart="carregador", stepA=1, projSel=4;
+
+/* ---------------- regras (versão de esboço) ---------------- */
+const part=k=>SLOTS[k].opts[S[k]];
+function calc(){
+  const I=part("placa").mA, N=+S.dias, frac=0.68;
+  const E=I*24*N, Cneed=E/frac;
+  const bat=part("bateria"); const autonomia=bat.fake?null:(bat.mAh*frac)/(I*24);
+  const Erec=Cneed*frac + I*24*S.diasSol; const Isol=Erec/(S.hsp*S.diasSol); const Pmin=Isol*6/1000; const Prec=Pmin*1.25;
+  const W=part("painel").W; const diaCoberto=(W/6*1000)*S.hsp >= I*24;
+  return {I,N,E,Cneed,autonomia,Pmin,Prec,W,diaCoberto};
+}
+function audit(){
+  const c=calc(), out=[];
+  const P=(lvl,slot,title,why,fix)=>out.push({lvl,slot,title,why,fix});
+  if(S.local==="den") P("bad","local","Dentro de casa não funciona","Parede e laje de concreto bloqueiam o sinal de 923 MHz. O repetidor precisa ficar do lado de fora.",{label:"Pôr no telhado",apply:()=>S.local="tel"});
+  if(part("antena").band!==915) P("bad","antena","Antena da faixa errada","Essa antena é para 868 MHz (Europa). A rede brasileira usa 923,125 MHz, então a antena precisa ser de 915–928 MHz.",{label:"Trocar pela omni 915 MHz",apply:()=>S.antena="omni"});
+  else P("ok","antena","Antena na faixa certa (915–928 MHz)","Lembrete: nunca ligue o rádio sem a antena conectada.");
+  if(part("bateria").fake) P("bad","bateria","Bateria com capacidade falsa","Não existe 18650 com mais de ~3.500 mAh de verdade. Com “9.900 mAh” não dá para confiar na conta de energia.",{label:"Trocar por 2× 18650 de marca",apply:()=>S.bateria="b2"});
+  if(!part("carregador").prot){
+    if(part("carregador").mppt) P("warn","carregador","CN3791 não protege a bateria","Ele carrega bem com sol, mas não corta quando a bateria esvazia. Use células protegidas ou um BMS 1S junto.",{label:"Trocar por TP4056 com DW01",apply:()=>S.carregador="tpd"});
+    else P("bad","carregador","Bateria sem proteção de descarga","Desde o firmware 1.18 a placa nRF52 não se desliga sozinha com bateria fraca. Sem proteção, ela pode travar e não voltar mais.",{label:"Trocar por TP4056 com DW01",apply:()=>S.carregador="tpd"});
+  } else P("ok","carregador","Bateria protegida (DW01)","Corta antes de a bateria esvaziar de vez. Mesmo assim, faça um teste de descarga completa na bancada.");
+  if(c.autonomia!==null){
+    const a=c.autonomia;
+    if(a>=c.N) P("ok","bateria",`Bateria aguenta ~${a.toFixed(0)} dias sem sol`,`A meta é ${c.N} dias. Consumo estimado de ${c.I} mA, mas o ideal é medir o seu.`);
+    else if(a>=0.6*c.N) P("warn","bateria",`Bateria aguenta só ~${a.toFixed(1)} dias sem sol`,`A meta é ${c.N} dias. Ponha mais uma célula em paralelo, sempre com a mesma tensão.`,{label:"Usar 2× 18650",apply:()=>S.bateria="b2"});
+    else P("bad","bateria",`Bateria acaba em ~${a.toFixed(1)} dias sem sol`,`A meta é ${c.N} dias. ${c.I>20?"Placa ESP32 gasta 4–8× mais que nRF52840.":"Falta bateria."}`,c.I>20?{label:"Trocar placa por XIAO nRF52840",apply:()=>S.placa="xiao"}:{label:"Usar 2× 18650",apply:()=>S.bateria="b2"});
+  }
+  if(!c.diaCoberto) P("bad","painel",`Painel de ${c.W} W não cobre nem um dia de sol`,`Para este consumo, use pelo menos ${c.Prec.toFixed(1)} W.`,{label:"Usar painel de 5 W",apply:()=>S.painel="p5"});
+  else if(c.W<c.Pmin) P("warn","painel",`Painel de ${c.W} W recarrega devagar`,`Depois de ${c.N} dias nublados, ele leva bem mais que ${S.diasSol} dias de sol para encher a bateria. O recomendado é ${c.Prec.toFixed(1)} W ou mais.`,{label:"Usar painel de 3 W",apply:()=>S.painel="p3"});
+  else if(c.W<c.Prec) P("warn","painel",`Painel de ${c.W} W está no limite`,`Passa na conta, mas sem a folga de 20–30%. O recomendado é ${c.Prec.toFixed(1)} W.`);
+  else P("ok","painel",`Painel de ${c.W} W dá conta`,`O mínimo calculado com folga é ${c.Prec.toFixed(1)} W, com 4,2 horas de sol pleno por dia.`);
+  if(part("placa").mcu==="esp" && c.autonomia!==null && c.autonomia>=0.6*c.N) P("warn","placa","ESP32 em repetidor solar","Funciona, mas gasta 4–8× mais. Para repetidor solar, prefira nRF52840.");
+  if(S.caixa==="cs") P("warn","caixa","Caixa sem respiro","Sem respiro, a caixa “puxa” umidade e forma água por dentro. Ponha um respiro IP67 e sílica gel.",{label:"Usar caixa com respiro",apply:()=>S.caixa="cv"});
+  const order={bad:0,warn:1,ok:2}; out.sort((a,b)=>order[a.lvl]-order[b.lvl]); return out;
+}
+
+/* ---------------- ícones ---------------- */
+const ICON={
+ bad:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#B91C1C"/><path d="M6.5 6.5l7 7M13.5 6.5l-7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>',
+ warn:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5 19 18H1Z" fill="#A35400"/><path d="M10 7v5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="10" cy="15" r="1.3" fill="#fff"/></svg>',
+ ok:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#15803D"/><path d="M5.5 10.5l3 3 6-6.5" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+};
+const MINI={
+ placa:'<svg width="40" height="30" viewBox="0 0 40 30"><rect x="4" y="3" width="32" height="15" rx="2" fill="#2B3440" stroke="#0F172A" stroke-width="1.5"/><rect x="8" y="18" width="24" height="9" rx="2" fill="#4B5563" stroke="#0F172A" stroke-width="1.5"/><circle cx="31" cy="23" r="2" fill="#B9822F"/></svg>',
+ bateria:'<svg width="40" height="30" viewBox="0 0 40 30"><rect x="4" y="4" width="30" height="9" rx="4.5" fill="#4A6A8A" stroke="#0F172A" stroke-width="1.5"/><rect x="4" y="17" width="30" height="9" rx="4.5" fill="#4A6A8A" stroke="#0F172A" stroke-width="1.5"/><rect x="34" y="6.5" width="3" height="4" fill="#0F172A"/><rect x="34" y="19.5" width="3" height="4" fill="#0F172A"/></svg>',
+ carregador:'<svg width="40" height="30" viewBox="0 0 40 30"><rect x="5" y="5" width="30" height="20" rx="2" fill="#2647A8" stroke="#0F172A" stroke-width="1.5"/><rect x="15" y="11" width="10" height="8" fill="#0F172A"/></svg>',
+ painel:'<svg width="40" height="30" viewBox="0 0 40 30"><rect x="3" y="4" width="34" height="22" rx="2" fill="#1F3A5C" stroke="#0F172A" stroke-width="1.5"/><path d="M3 11.3h34M3 18.6h34M14.3 4v22M25.6 4v22" stroke="#6E8FB5" stroke-width="1"/></svg>',
+ antena:'<svg width="40" height="30" viewBox="0 0 40 30"><rect x="17" y="2" width="6" height="22" rx="3" fill="#0F172A"/><rect x="15" y="23" width="10" height="5" fill="#B9822F" stroke="#0F172A"/></svg>',
+ caixa:'<svg width="40" height="30" viewBox="0 0 40 30"><rect x="4" y="5" width="32" height="21" rx="3" fill="#F8FAFC" stroke="#0F172A" stroke-width="1.5" stroke-dasharray="4 3"/></svg>',
+ local:'<svg width="40" height="30" viewBox="0 0 40 30"><path d="M5 26V14l10-8 10 8v12Z" fill="#E7ECFA" stroke="#0F172A" stroke-width="1.5"/><path d="M30 26V6" stroke="#0F172A" stroke-width="2"/></svg>'
+};
+
+/* ---------------- SVG da montagem ---------------- */
+function assemblySVG(id){
+  const p=part("painel"), b=part("bateria"), pl=part("placa");
+  const g=(slot,inner,hx,hy,hw,hh,bx,by,label)=>`<g class="part" data-slot="${slot}" tabindex="0" role="button" aria-label="${label}">
+     <rect class="hl" x="${hx}" y="${hy}" width="${hw}" height="${hh}" rx="10"/>${inner}
+     <g class="badge"><circle cx="${bx}" cy="${by}" r="11"/><text x="${bx}" y="${by+5}" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">!</text></g></g>`;
+  const cells=b.mAh>=7000?2:1;
+  return `<svg class="assembly" id="${id}" viewBox="0 0 660 420" font-family="Atkinson Hyperlegible, sans-serif">
+   <title>Montagem do repetidor solar</title>
+   <!-- caixa -->
+   ${g("caixa",`<rect class="body" x="170" y="60" width="400" height="320" rx="16" fill="rgba(255,255,255,.7)" stroke="#0F172A" stroke-width="2" stroke-dasharray="9 6"/><text x="186" y="84" font-size="14" fill="#475569">Caixa · ${S.caixa==="cv"?"IP65 + respiro":"IP65 sem respiro"}</text>${S.caixa==="cv"?'<circle cx="540" cy="360" r="7" fill="#fff" stroke="#0F172A" stroke-width="2"/><text x="500" y="364" font-size="11" fill="#475569" text-anchor="end">respiro</text>':''}`,164,54,412,332,570,58,"Caixa")}
+   <!-- fios -->
+   <path d="M140 110H230" stroke="#C0262D" stroke-width="4" fill="none"/><path d="M140 150H200V170H230" stroke="#0F172A" stroke-width="4" fill="none"/>
+   <path d="M260 200V245" stroke="#C0262D" stroke-width="4"/><path d="M320 200V245" stroke="#0F172A" stroke-width="4"/>
+   <path d="M350 120H410" stroke="#C0262D" stroke-width="4"/><path d="M350 175H380V160H410" stroke="#0F172A" stroke-width="4" fill="none"/>
+   <!-- painel -->
+   ${g("painel",`<rect class="body" x="14" y="80" width="126" height="${50+p.W*12}" rx="6" fill="#1F3A5C" stroke="#0F172A" stroke-width="2"/><path d="M14 ${80+(50+p.W*12)/3}h126M14 ${80+2*(50+p.W*12)/3}h126M56 80v${50+p.W*12}M98 80v${50+p.W*12}" stroke="#6E8FB5"/><text x="77" y="${100+50+p.W*12}" text-anchor="middle" font-size="14" font-weight="700" fill="#0F172A">Painel ${p.W} W</text>`,8,74,138,62+p.W*12+34,140,74,"Painel solar")}
+   <rect x="164" y="98" width="12" height="28" fill="#94A3B8" stroke="#0F172A"/>
+   <!-- carregador -->
+   ${g("carregador",`<rect class="body" x="230" y="95" width="120" height="105" rx="6" fill="#2647A8" stroke="#0F172A" stroke-width="2"/><rect x="270" y="130" width="40" height="30" fill="#0F172A"/><text x="290" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">${S.carregador==="cn"?"CN3791":"TP4056"}</text><text x="290" y="185" text-anchor="middle" font-size="12" fill="#fff">${part("carregador").prot?"com DW01":"sem proteção"}</text>`,224,89,132,117,350,90,"Carregador")}
+   <!-- bateria -->
+   ${g("bateria",`<rect class="body" x="225" y="245" width="140" height="34" rx="17" fill="#4A6A8A" stroke="#0F172A" stroke-width="2"/>${cells===2?'<rect class="body" x="225" y="288" width="140" height="34" rx="17" fill="#4A6A8A" stroke="#0F172A" stroke-width="2"/>':''}<text x="295" y="267" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">18650 ${b.fake?"“9.900”":"3.500 mAh"}</text>${cells===2?`<text x="295" y="310" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">18650 ${b.fake?"“9.900”":"3.500 mAh"}</text>`:''}<text x="295" y="${cells===2?345:300}" text-anchor="middle" font-size="12" fill="#475569">${cells===2?"em paralelo":""}</text>`,219,239,152,cells===2?110:46,370,240,"Bateria")}
+   <!-- placa -->
+   ${g("placa",`<rect class="body" x="410" y="100" width="120" height="70" rx="6" fill="#2B3440" stroke="#0F172A" stroke-width="2"/><text x="470" y="130" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">${pl.mcu==="esp"?"Heltec V3":S.placa==="t114"?"T114":"XIAO nRF52840"}</text><text x="470" y="150" text-anchor="middle" font-size="11" fill="#CBD5E1">~${pl.mA} mA</text>${S.placa==="xiao"?'<rect class="body" x="420" y="176" width="100" height="36" rx="5" fill="#4B5563" stroke="#0F172A" stroke-width="2"/><text x="470" y="199" text-anchor="middle" font-size="12" fill="#fff">Wio-SX1262</text>':''}<circle cx="515" cy="${S.placa==="xiao"?204:160}" r="5" fill="#B9822F"/>`,404,94,132,124,530,96,"Placa e rádio")}
+   <!-- pigtail + antena -->
+   <path d="M515 ${S.placa==="xiao"?204:160} C560 ${S.placa==="xiao"?210:170} 560 250 570 250" stroke="#B9822F" stroke-width="3" fill="none"/>
+   ${g("antena",`<rect x="566" y="240" width="16" height="22" fill="#B9822F" stroke="#0F172A"/><rect class="body" x="600" y="40" width="16" height="225" rx="8" fill="#0F172A"/><path d="M582 251H600" stroke="#0F172A" stroke-width="4"/><text x="632" y="150" font-size="13" font-weight="700" fill="#0F172A" transform="rotate(90 632 150)">Antena ${part("antena").band===915?"915 MHz":"868 MHz"}</text>`,560,32,92,240,648,36,"Antena")}
+   <!-- local -->
+   <g class="part" data-slot="local" tabindex="0" role="button" aria-label="Onde vai ficar"><rect class="hl" x="8" y="${S.local==="den"?330:360}" width="150" height="50" rx="10"/><text x="16" y="395" font-size="13" fill="#475569">Local: <tspan font-weight="700" fill="#0F172A">${LOCAIS[S.local].t}</tspan></text><g class="badge"><circle cx="158" cy="365" r="11"/><text x="158" y="370" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">!</text></g></g>
+  </svg>`;
+}
+function paintSVG(svg,list){
+  svg.querySelectorAll(".part").forEach(el=>{
+    const s=el.dataset.slot; el.classList.remove("bad","warn","sel");
+    const worst=list.filter(a=>a.slot===s && a.lvl!=="ok").map(a=>a.lvl);
+    if(worst.includes("bad")) el.classList.add("bad"); else if(worst.includes("warn")) el.classList.add("warn");
+    if(s===selPart) el.classList.add("sel");
+    el.onclick=()=>{selPart=s; render();};
+    el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();selPart=s;render();}};
+  });
+}
+function auditHTML(list,compact){
+  return list.map((a,i)=>`<li><div class="aitem ${a.lvl}" data-slot="${a.slot}" role="button" tabindex="0">
+    <div class="h">${ICON[a.lvl]}<span>${a.title}</span></div>
+    ${compact&&a.lvl==="ok"?"":`<div class="why">${a.why}</div>`}
+    ${a.fix?`<div class="fix"><button class="btn small primary" data-fix="${i}">${a.fix.label}</button></div>`:""}
+  </div></li>`).join("");
+}
+function wireAudit(ul,list){
+  ul.querySelectorAll(".aitem").forEach(el=>el.onclick=e=>{ if(e.target.dataset.fix!==undefined){list[+e.target.dataset.fix].fix.apply();} selPart=el.dataset.slot; render();});
+}
+function counts(list){return {bad:list.filter(a=>a.lvl==="bad").length,warn:list.filter(a=>a.lvl==="warn").length}}
+function statusPill(list){const c=counts(list);
+  if(c.bad) return `<span class="pill bad">${ICON.bad} ${c.bad} problema${c.bad>1?"s":""}${c.warn?` · ${c.warn} atenção`:""}</span>`;
+  if(c.warn) return `<span class="pill warn">${ICON.warn} ${c.warn} ponto${c.warn>1?"s":""} de atenção</span>`;
+  return `<span class="pill ok">${ICON.ok} Tudo certo</span>`;}
+function energyHTML(){
+  const c=calc(); const a=c.autonomia; const max=Math.max(c.N*1.6,(a||0)*1.1);
+  const pct=a===null?0:Math.min(100,a/max*100), goal=c.N/max*100;
+  const col=a===null?"#B91C1C":a>=c.N?"#15803D":a>=0.6*c.N?"#A35400":"#B91C1C";
+  const pmax=Math.max(c.Prec*1.6,c.W*1.1), ppct=Math.min(100,c.W/pmax*100), pgoal=c.Prec/pmax*100;
+  const pcol=!c.diaCoberto?"#B91C1C":c.W>=c.Prec?"#15803D":"#A35400";
+  return `<div class="gauge"><div class="lbl"><b>Autonomia sem sol</b><span class="mono">${a===null?"? (bateria falsa)":a.toFixed(1)+" dias"}</span></div>
+    <div class="bar"><span style="width:${pct}%;background:${col}"></span><i class="goal" style="left:${goal}%"></i></div><div class="note">traço = meta de ${c.N} dias</div></div>
+    <div class="gauge"><div class="lbl"><b>Painel</b><span class="mono">${c.W} W / mín. ${c.Prec.toFixed(1)} W</span></div>
+    <div class="bar"><span style="width:${ppct}%;background:${pcol}"></span><i class="goal" style="left:${pgoal}%"></i></div></div>
+    <div class="note mono">consumo ${c.I} mA · ${(c.I*24).toFixed(0)} mAh/dia · bateria necessária ${Math.round(c.Cneed)} mAh</div>`;
+}
+function photoLine(slot){
+  const o=part(slot);
+  if(slot==="placa") return o.foto?`<a href="#" onclick="return false">Ver foto real</a> <span class="note">(${o.foto})</span>`:`<span class="note">Sem foto de licença livre: só a ilustração.</span>`;
+  return `<a href="#" onclick="return false">Ver foto real</a> <span class="note">(Wikimedia Commons, se houver)</span>`;
+}
+
+/* ---------------- render ---------------- */
+function render(){
+  const list=audit();
+  // ---- A
+  document.querySelectorAll("#viewA .apane").forEach(p=>p.classList.toggle("hidden",+p.dataset.pane!==stepA));
+  document.querySelectorAll("#viewA .step").forEach(b=>{const n=+b.dataset.go;b.toggleAttribute("aria-current",false);if(n===stepA)b.setAttribute("aria-current","step");b.classList.toggle("done",n<stepA);});
+  document.getElementById("backA").disabled=stepA===1; document.getElementById("nextA").textContent=stepA===2?"Ir para o PDF":"Próximo"; document.getElementById("nextA").classList.toggle("hidden",stepA===4);
+  document.getElementById("projGrid").innerHTML=PROJECTS.map(p=>`<button class="pcard" aria-pressed="${p.id===projSel}" data-proj="${p.id}">
+     <span class="lvl">Projeto ${p.id} · <span class="dots">${[1,2,3,4,5].map(i=>`<i class="${i<=p.lvl?"on":""}"></i>`).join("")}</span></span>
+     <h3>${p.name}</h3><p>${p.what}</p><div class="tags">${p.tags.map(t=>`<span class="tag">${t}</span>`).join("")}<span class="tag mono">${p.cost}</span></div></button>`).join("");
+  document.querySelectorAll("#projGrid .pcard").forEach(b=>b.onclick=()=>{projSel=+b.dataset.proj; if(projSel!==4) alert("No esboço só o projeto 4 está montado. Os outros usam a mesma tela."); else {stepA=2;} render();});
+  document.getElementById("slotsA").innerHTML=Object.entries(SLOTS).map(([k,v])=>{
+     const st=list.filter(a=>a.slot===k&&a.lvl!=="ok"); const w=st.some(a=>a.lvl==="bad")?"bad":st.length?"warn":"ok";
+     return `<div class="slot"><div class="ico">${MINI[k]}</div><div><div class="lbl">${v.label}</div>
+       <select data-slot="${k}" aria-label="${v.label}">${Object.entries(v.opts).map(([ok,o])=>`<option value="${ok}" ${S[k]===ok?"selected":""}>${o.t}</option>`).join("")}</select>
+       <div class="note">${part(k).s} · ${photoLine(k)}</div></div>
+       <div class="st" style="color:var(--${w==="ok"?"ok":w})">${ICON[w]}</div></div>`;}).join("");
+  document.querySelectorAll("#slotsA select").forEach(s=>s.onchange=()=>{S[s.dataset.slot]=s.value;render();});
+  const segs=Object.entries(LOCAIS).map(([k,l])=>`<button data-local="${k}" aria-pressed="${S.local===k}">${l.t}</button>`).join("");
+  document.getElementById("localA").innerHTML=segs; document.getElementById("localB").innerHTML=segs;
+  document.querySelectorAll("[data-local]").forEach(b=>b.onclick=()=>{S.local=b.dataset.local;render();});
+  document.getElementById("localNoteA").innerHTML=S.local==="den"?`<span style="color:var(--bad);font-weight:700">Dentro de casa o sinal não passa pelo concreto.</span>`:`Isso define o <span class="mono">txdelay ${LOCAIS[S.local].tx}</span> nos comandos do PDF.`;
+  ["diasA","diasB"].forEach(id=>{const el=document.getElementById(id); el.value=S.dias; el.oninput=()=>{S.dias=Math.max(1,+el.value||1);render();};});
+  document.getElementById("energyA").innerHTML=energyHTML();
+  const c=counts(list);
+  document.getElementById("auditLeadA").innerHTML=`${statusPill(list)} &nbsp;Clique num item para ver a peça na montagem. Os botões azuis trocam a peça para você.`;
+  document.getElementById("svgHostA").innerHTML=assemblySVG("svgA"); paintSVG(document.getElementById("svgA"),list);
+  const ulA=document.getElementById("auditA"); ulA.innerHTML=auditHTML(list,false); wireAudit(ulA,list);
+  document.getElementById("pdfWarnA").innerHTML=c.bad?`<p class="pill bad" style="display:inline-flex">${ICON.bad} Ainda há ${c.bad} problema${c.bad>1?"s":""}: o PDF sai com aviso em vermelho na capa. <a href="#" onclick="stepA=2;render();return false" style="color:inherit">Voltar e corrigir</a></p>`:"";
+  const pages=[["Capa",c.bad?'<div class="warnbox">'+c.bad+' problema(s) não resolvido(s)</div>':'<div class="note">Auditoria: tudo certo</div>'],["Lista de peças",""],["Ligação (desenho)",""],["Firmware e comandos",'<span class="mono" style="font-size:9px">set radio 923.125,62.5,8,8<br>set txdelay '+(LOCAIS[S.local].tx||"?")+'</span>'],["Conta de energia",""],["Passo a passo e teste de bancada",""]];
+  document.getElementById("pagesA").innerHTML=pages.map(([t,x],i)=>`<div class="page"><b>${i+1}. ${t}</b>${x}<div class="ln"></div><div class="ln s"></div><div class="ln"></div><div class="ln s"></div></div>`).join("");
+  // ---- B
+  document.getElementById("projSelB").innerHTML=PROJECTS.map(p=>`<option value="${p.id}" ${p.id===projSel?"selected":""}>${p.id}. ${p.name}</option>`).join("");
+  document.getElementById("projSelB").onchange=e=>{projSel=+e.target.value; if(projSel!==4) alert("No esboço só o projeto 4 está montado."); render();};
+  document.getElementById("statusB").innerHTML=statusPill(list);
+  document.getElementById("catalogB").innerHTML=Object.entries(SLOTS).map(([k,v])=>`<div class="cat-group"><h3>${v.label}</h3>${Object.entries(v.opts).map(([ok,o])=>`<button class="cat-item" aria-pressed="${S[k]===ok}" data-slot="${k}" data-opt="${ok}"><span class="ic">${MINI[k]}</span><span><span class="t">${o.t}</span><br><span class="s">${o.s}</span></span></button>`).join("")}</div>`).join("");
+  document.querySelectorAll("#catalogB .cat-item").forEach(b=>b.onclick=()=>{S[b.dataset.slot]=b.dataset.opt; selPart=b.dataset.slot; render();});
+  document.getElementById("svgHostB").innerHTML=assemblySVG("svgB"); paintSVG(document.getElementById("svgB"),list);
+  const mine=list.filter(a=>a.slot===selPart);
+  const lbl=selPart==="local"?"Local":SLOTS[selPart].label;
+  document.getElementById("detailB").innerHTML=`<h4>${lbl}: ${selPart==="local"?LOCAIS[S.local].t:part(selPart).t}</h4>
+    <div class="note">${selPart==="local"?"txdelay "+(LOCAIS[S.local].tx||"—"):part(selPart).s+" · "+photoLine(selPart)}</div>
+    ${mine.length?`<ul class="alist" style="margin-top:8px">${auditHTML(mine,true)}</ul>`:'<p class="note">Nada a apontar nesta peça.</p>'}`;
+  wireAudit(document.querySelector("#detailB .alist")||document.createElement("ul"),mine);
+  document.getElementById("gaugesB").innerHTML=energyHTML();
+  const ulB=document.getElementById("auditB"); ulB.innerHTML=auditHTML(list,true); wireAudit(ulB,list);
+}
+document.getElementById("backA").onclick=()=>{stepA=STEPS[Math.max(0,STEPS.indexOf(stepA)-1)];render();};
+const STEPS=[1,2,4];document.getElementById("nextA").onclick=()=>{stepA=STEPS[Math.min(2,STEPS.indexOf(stepA)+1)];render();};
+document.querySelectorAll("#viewA .step").forEach(b=>b.onclick=()=>{stepA=+b.dataset.go;render();});
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x===t));
+  ["A","P"].forEach(v=>document.getElementById("view"+v).classList.toggle("hidden",t.dataset.tab!==v));
+});
+document.querySelectorAll(".benchtabs button").forEach(b=>b.onclick=()=>{document.querySelector(".bench").dataset.show=b.dataset.bt;document.querySelectorAll(".benchtabs button").forEach(x=>x.setAttribute("aria-selected",x===b));});
+function pick(el){document.querySelectorAll(".choices .btn").forEach(b=>b.setAttribute("aria-pressed",b===el));}
+render();
+</script>
+</body>
+</html>
