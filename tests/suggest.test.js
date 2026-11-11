@@ -22,7 +22,6 @@ test('a URL só contém o id e o template (nenhum estado do usuário)', () => {
 });
 
 test('sem configuração: tudo null', () => {
-  assert.deepEqual(suggestLinks({ kind: 'regra', id: 'EN-05' }), { form: null, github: null });
   assert.deepEqual(suggestLinks({ kind: 'regra', id: 'EN-05' }, { githubRepo: null, formPrefillUrl: null }), { form: null, github: null });
 });
 

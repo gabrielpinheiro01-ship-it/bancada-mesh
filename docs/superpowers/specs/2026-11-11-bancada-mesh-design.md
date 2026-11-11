@@ -4,7 +4,7 @@
 > **Próximo passo:** plano de construção (superpowers:writing-plans) numa janela limpa, partindo só deste
 > documento e da skill.
 > **Base de conhecimento:** skill `meshcore-hubreal` (snapshot de 10/11/2026, firmware MeshCore v1.18.0),
-> repositório privado `gabrielpinheiro01-ship-it/meshcore-hubreal-skill`.
+> mantida num repositório privado do mantenedor.
 > **Esboço visual de referência:** `esboco-bancada-mesh.html`, na mesma pasta deste documento. Abra no navegador.
 > O esboço é descartável: serve para mostrar o fluxo e o visual, não como base de código.
 >

@@ -16,7 +16,7 @@ servidas pelo próprio site · GitHub Actions (testes, deploy no Pages, aviso de
 
 **Spec:** `docs/superpowers/specs/2026-11-11-bancada-mesh-design.md` (aprovado em 11/11/2026). Esboço visual
 descartável: `docs/superpowers/specs/esboco-bancada-mesh.html`. Base de conhecimento:
-`C:\Users\Gabriel Pinheiro\.claude\skills\meshcore-hubreal\` (fonte de toda regra; citar o arquivo em cada regra).
+a skill privada `meshcore-hubreal` do mantenedor (fonte de toda regra; citar o arquivo em cada regra).
 
 ## Global Constraints
 

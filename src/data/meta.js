@@ -16,6 +16,6 @@ export const META = Object.freeze({
   margin: 1.25,
   // Consumo extra do GPS em mA: faixa 30–60 da skill; usa-se 60 por ser o conservador.
   gpsExtraMa: 60,
-  githubRepo: null,
+  githubRepo: 'gabrielpinheiro01-ship-it/bancada-mesh',
   formPrefillUrl: null,
 });
