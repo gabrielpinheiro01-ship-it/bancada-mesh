@@ -2,9 +2,11 @@
 import { META } from '../data/meta.js';
 import { PROJECTS } from '../data/projects.js';
 import { parseNumberBR } from './numbers.js';
+import { DDD_BY_UF } from '../data/ddd.js';
+import { validateCustomRegion } from './region.js';
+import { txOptions } from './commands.js';
 
 const NUMERIC = ['daysNoSun', 'daysRecharge', 'hsp'];
-const STRING_OR_NULL = ['uf', 'ddd', 'customRegion'];
 const MSG_NOT_NUMBER = 'Digite um número, por exemplo 4,2';
 
 function fmtLimit(n) {
@@ -66,10 +68,27 @@ export function setField(state, field, value) {
   }
   if (field === 'txDbm') {
     if (!Number.isInteger(value)) return keep('Use um número inteiro, por exemplo 22');
+    if (!txOptions(state).includes(value)) return keep(`Essa placa só aceita: ${txOptions(state).join(', ')}`);
     return ok(value);
   }
-  if (STRING_OR_NULL.includes(field)) {
-    if (value !== null && typeof value !== 'string') return keep('Digite um texto');
+  if (field === 'uf') {
+    if (value === null) return { state: { ...state, parts: { ...state.parts }, uf: null, ddd: null, customRegion: null }, error: null };
+    if (typeof value !== 'string' || !Object.hasOwn(DDD_BY_UF, value)) return keep('Escolha um estado da lista');
+    const ddd = state.ddd && DDD_BY_UF[value].includes(state.ddd) ? state.ddd : null;
+    const customRegion = state.customRegion && state.customRegion.startsWith(`br-${value.toLowerCase()}-`) ? state.customRegion : null;
+    return { state: { ...state, parts: { ...state.parts }, uf: value, ddd, customRegion }, error: null };
+  }
+  if (field === 'ddd') {
+    if (value === null) return ok(null);
+    if (!state.uf) return keep('Escolha primeiro o estado');
+    if (typeof value !== 'string' || !DDD_BY_UF[state.uf].includes(value)) return keep(`Esse DDD não é de ${state.uf}`);
+    return ok(value);
+  }
+  if (field === 'customRegion') {
+    if (value === null || value === '') return ok(null);
+    if (typeof value !== 'string') return keep('Digite um texto');
+    const v = validateCustomRegion(value, state.uf);
+    if (!v.ok) return keep(v.reason);
     return ok(value);
   }
   throw new Error(`Campo desconhecido: ${field}`);

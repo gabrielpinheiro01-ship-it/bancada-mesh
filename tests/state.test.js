@@ -92,12 +92,13 @@ test('setField: location, hasWifi, txDbm, uf/ddd/customRegion', () => {
   assert.equal(setField(s, 'hasWifi', true).state.hasWifi, true);
   assert.equal(setField(s, 'hasWifi', null).state.hasWifi, null);
   assert.ok(setField(s, 'hasWifi', 'sim').error);
-  assert.equal(setField(s, 'txDbm', 20).state.txDbm, 20);
+  assert.equal(setField(s, 'txDbm', 22).state.txDbm, 22);
+  assert.ok(setField(s, 'txDbm', 20).error); // placa sem PA só aceita 22 (regra da Task 4)
   assert.ok(setField(s, 'txDbm', 'x').error);
   assert.ok(setField(s, 'txDbm', 20.5).error);
   assert.equal(setField(s, 'uf', 'MG').state.uf, 'MG');
-  assert.equal(setField(s, 'ddd', '31').state.ddd, '31');
-  assert.equal(setField(s, 'customRegion', 'Sul de Minas').state.customRegion, 'Sul de Minas');
+  assert.ok(setField(s, 'ddd', '31').error); // sem UF (regra da Task 4)
+  assert.ok(setField(s, 'customRegion', 'Sul de Minas').error); // formato inválido (regra da Task 4)
   assert.equal(setField(setField(s, 'uf', 'MG').state, 'uf', null).state.uf, null);
   assert.ok(setField(s, 'uf', 5).error);
 });
@@ -128,4 +129,69 @@ test('sem vazamento: recriar o estado volta tudo ao padrão', () => {
 
 test('createState com projeto inexistente lança erro', () => {
   assert.throws(() => createState(99));
+});
+
+// ---- Task 4: UF, DDD, região própria e potência ----
+import { txOptions } from '../src/core/commands.js';
+
+test('setField uf: aceita sigla maiúscula ou null; senão erro', () => {
+  const s = createState(4);
+  assert.equal(setField(s, 'uf', 'MG').state.uf, 'MG');
+  for (const bad of ['mg', 'XX', 'Minas', 7]) {
+    const r = setField(s, 'uf', bad);
+    assert.equal(r.error, 'Escolha um estado da lista');
+    assert.equal(r.state.uf, null);
+  }
+  assert.equal(setField(setField(s, 'uf', 'MG').state, 'uf', null).state.uf, null);
+});
+
+test('trocar de UF zera DDD de outra UF e região própria de outra UF', () => {
+  let s = createState(4);
+  s = setField(s, 'uf', 'SP').state;
+  s = setField(s, 'ddd', '12').state;
+  s = setField(s, 'customRegion', 'br-sp-valeparaiba').state;
+  const same = setField(s, 'uf', 'SP').state;
+  assert.equal(same.ddd, '12');
+  assert.equal(same.customRegion, 'br-sp-valeparaiba');
+  const mg = setField(s, 'uf', 'MG').state;
+  assert.equal(mg.ddd, null);
+  assert.equal(mg.customRegion, null);
+});
+
+test('setField ddd: exige UF e DDD da UF', () => {
+  const s0 = createState(4);
+  const a = setField(s0, 'ddd', '31');
+  assert.equal(a.error, 'Escolha primeiro o estado');
+  assert.equal(a.state.ddd, null);
+  const s = setField(s0, 'uf', 'SP').state;
+  const b = setField(s, 'ddd', '31');
+  assert.equal(b.error, 'Esse DDD não é de SP');
+  assert.equal(b.state.ddd, null);
+  const c = setField(s, 'ddd', '15');
+  assert.equal(c.error, null);
+  assert.equal(c.state.ddd, '15');
+  assert.equal(setField(c.state, 'ddd', null).state.ddd, null);
+});
+
+test('setField customRegion', () => {
+  const s = setField(createState(4), 'uf', 'SP').state;
+  const ok = setField(s, 'customRegion', 'br-sp-valeparaiba');
+  assert.equal(ok.error, null);
+  assert.equal(ok.state.customRegion, 'br-sp-valeparaiba');
+  const bad = setField(ok.state, 'customRegion', 'BR-SP-Vale');
+  assert.match(bad.error, /minúsculas/);
+  assert.equal(bad.state.customRegion, 'br-sp-valeparaiba');
+  assert.equal(setField(ok.state, 'customRegion', '').state.customRegion, null);
+  assert.equal(setField(ok.state, 'customRegion', null).state.customRegion, null);
+  assert.ok(setField(createState(4), 'customRegion', 'br-sp-x').error);
+});
+
+test('setField txDbm: só valores de txOptions', () => {
+  const s = createState(4);
+  assert.deepEqual(txOptions(s), [22]);
+  assert.equal(setField(s, 'txDbm', 22).error, null);
+  const r = setField(s, 'txDbm', 19);
+  assert.ok(r.error);
+  assert.equal(r.state.txDbm, 22);
+  assert.ok(setField(s, 'txDbm', 'x').error);
 });
