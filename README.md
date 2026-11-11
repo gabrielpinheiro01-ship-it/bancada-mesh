@@ -6,7 +6,7 @@ Site estático que guia a montagem de um rádio [MeshCore](https://meshcore.co.u
 
 ## Como rodar
 
-Pré-requisito: Node.js 20 ou superior (para os testes). O site em si é HTML, CSS e JavaScript puros.
+Pré-requisito: Node 22 ou mais novo (para os testes). O site em si é HTML, CSS e JavaScript puros.
 
 Testes:
 
