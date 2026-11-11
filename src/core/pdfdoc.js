@@ -143,13 +143,17 @@ export function shoppingRows(state, items) {
 
 // ---------- páginas ----------
 
+// Ids usados pelos filtros abaixo; um teste confere que existem no conteúdo (se um id mudar, falha alto).
+export const ALERT_FILTER_IDS = Object.freeze({ polarity: 'polaridade', parallel: 'EN-09', batteryTest: 'EN-14' });
+export const INSTALL_FILTER_IDS = Object.freeze({ panel: 'IN-05-painel', battery: 'IN-05-bateria' });
+
 function alertsFor(state, project) {
   const hasBattery = Boolean(state.parts.bateria);
   const cells = PARTS[state.parts.bateria]?.attrs?.cells ?? 0;
   return ALERTS.filter((a) => {
-    if (a.id === 'polaridade') return hasBattery || project.solder;
-    if (a.id === 'EN-09') return cells > 1;
-    if (a.id === 'EN-14') return hasBattery;
+    if (a.id === ALERT_FILTER_IDS.polarity) return hasBattery || project.solder;
+    if (a.id === ALERT_FILTER_IDS.parallel) return cells > 1;
+    if (a.id === ALERT_FILTER_IDS.batteryTest) return hasBattery;
     return true;
   });
 }
@@ -449,8 +453,8 @@ function buildPage(ctx) {
   const content = [h1(repeater ? 'Montagem, instalação e manutenção' : 'Montagem e teste de bancada'), h2('Montagem e teste de bancada'), numbered(STEPS[state.projectId] ?? [])];
   if (repeater) {
     const blocksFor = INSTALL.filter((b) => {
-      if (b.id === 'IN-05-painel') return Boolean(state.parts.painel);
-      if (b.id === 'IN-05-bateria') return Boolean(state.parts.bateria);
+      if (b.id === INSTALL_FILTER_IDS.panel) return Boolean(state.parts.painel);
+      if (b.id === INSTALL_FILTER_IDS.battery) return Boolean(state.parts.bateria);
       return true;
     });
     content.push(h2('Instalação e manutenção'), ...blocks(blocksFor));

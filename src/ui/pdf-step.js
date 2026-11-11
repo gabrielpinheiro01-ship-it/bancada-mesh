@@ -27,6 +27,15 @@ const FONTS = Object.freeze({
 
 const MSG_ERRO = 'Não deu para gerar o PDF. Tente de novo. Se o erro continuar, recarregue a página (suas escolhas serão perdidas, porque nada fica guardado).';
 
+const PDF_TIMEOUT_MS = 30000;
+
+/** Rejeita se a promessa não resolver em `ms`. Pura (sem DOM): testável no Node. */
+export function withTimeout(promise, ms, message = 'tempo esgotado') {
+  let timer;
+  const limit = new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(message)), ms); });
+  return Promise.race([promise, limit]).finally(() => clearTimeout(timer));
+}
+
 let pdfMakePromise = null;
 
 /** Carrega o pdfmake uma vez, sob demanda, por um <script src> do próprio site (permitido pela CSP). */
@@ -68,13 +77,22 @@ async function loadVfs() {
  */
 export async function downloadPdf(docDefinition, fileName) {
   const [pdfMake, vfs] = await Promise.all([loadPdfMake(), loadVfs()]);
-  await new Promise((resolve, reject) => {
+  // Gera primeiro o blob, com rejeição explícita e tempo-limite: erro assíncrono do pdfmake não prende o botão.
+  const blob = await withTimeout(new Promise((resolve, reject) => {
     try {
-      pdfMake.createPdf(docDefinition, null, FONTS, vfs).download(fileName, resolve);
+      pdfMake.createPdf(docDefinition, null, FONTS, vfs).getBlob(resolve);
     } catch (e) {
       reject(e);
     }
-  });
+  }), PDF_TIMEOUT_MS, 'tempo esgotado ao gerar o PDF');
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
 /** dd/mm/aaaa da data local de hoje. */

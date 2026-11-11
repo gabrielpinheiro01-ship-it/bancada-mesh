@@ -244,3 +244,18 @@ test('o documento é puro e serializável: duas chamadas iguais dão o mesmo JSO
   const dd = build(p4(), SVG);
   assert.ok(dd.info.title.includes('Bancada Mesh'));
 });
+
+test('ids usados pelos filtros de alertas e de instalação existem no conteúdo', async () => {
+  const { ALERT_FILTER_IDS, INSTALL_FILTER_IDS } = await import('../src/core/pdfdoc.js');
+  const { ALERTS } = await import('../src/content/alerts.js');
+  const { INSTALL } = await import('../src/content/install.js');
+  for (const id of Object.values(ALERT_FILTER_IDS)) assert.ok(ALERTS.some((b) => b.id === id), `ALERTS sem ${id}`);
+  for (const id of Object.values(INSTALL_FILTER_IDS)) assert.ok(INSTALL.some((b) => b.id === id), `INSTALL sem ${id}`);
+});
+
+test('withTimeout: resolve a tempo, rejeita no tempo-limite e propaga erro', async () => {
+  const { withTimeout } = await import('../src/ui/pdf-step.js');
+  assert.equal(await withTimeout(Promise.resolve(7), 50), 7);
+  await assert.rejects(withTimeout(new Promise(() => {}), 20, 'demorou'), /demorou/);
+  await assert.rejects(withTimeout(Promise.reject(new Error('falhou')), 50), /falhou/);
+});
