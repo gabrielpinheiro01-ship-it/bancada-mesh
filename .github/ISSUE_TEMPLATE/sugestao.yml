@@ -1,0 +1,41 @@
+name: Sugerir uma correção
+description: Achou um erro numa regra, peça ou comando? Conte aqui. Uma pessoa confere a fonte antes de mudar.
+title: "[ID] "
+labels: ["sugestao"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Usou IA para escrever? Tudo bem, mas IA costuma inventar comandos do MeshCore. Confira na documentação antes de mandar.**
+
+        Sugestão só vira mudança com fonte: documentação oficial, nota de versão, página da comunidade ou medição.
+  - type: textarea
+    id: erro
+    attributes:
+      label: O que está errado?
+      description: Diga o que o site mostra hoje e o que você acha que deveria mostrar.
+    validations:
+      required: true
+  - type: input
+    id: identificador
+    attributes:
+      label: Identificador
+      description: Código da regra, peça ou comando (ex.: EN-05). Já vem no título quando você chega pelo link "achei um erro".
+    validations:
+      required: false
+  - type: dropdown
+    id: usou-ia
+    attributes:
+      label: Você usou IA (ChatGPT, Gemini…) para escrever isto?
+      options:
+        - "Não"
+        - "Sim"
+    validations:
+      required: true
+  - type: input
+    id: fonte
+    attributes:
+      label: Fonte
+      description: Link da documentação, nota de versão ou medição. Quem marcou "Sim" acima precisa informar a fonte. Sem fonte, a sugestão não vira regra, venha de quem vier.
+    validations:
+      required: false
