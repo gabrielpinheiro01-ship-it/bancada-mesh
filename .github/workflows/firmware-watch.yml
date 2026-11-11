@@ -1,0 +1,62 @@
+name: Aviso de firmware MeshCore novo
+
+on:
+  schedule:
+    - cron: '0 12 * * 1'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Ler a última release do MeshCore
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=$(gh release view --repo meshcore-dev/MeshCore --json tagName -q .tagName)
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Comparar com o firmware de referência do site
+        id: check
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          OUT=$(node scripts/check-firmware.mjs "$TAG")
+          echo "$OUT"
+          echo "$OUT" >> "$GITHUB_OUTPUT"
+
+      - name: Abrir issue se houver firmware novo
+        if: steps.check.outputs.review == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          TITLE="Firmware MeshCore $TAG saiu: revisar regras"
+          EXISTING=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --limit 100 --json title -q '.[].title')
+          if printf '%s\n' "$EXISTING" | grep -Fxq -- "$TITLE"; then
+            echo "Já existe issue aberta: $TITLE"
+            exit 0
+          fi
+          BODY=$(cat <<'EOF'
+          Saiu uma versão nova do firmware MeshCore. As regras do site podem ter mudado.
+
+          Siga o checklist do CONTRIBUTING.md:
+
+          1. Reconferir as fontes.
+          2. Atualizar as regras, o `checkedAt`, `META.rulesCheckedAt` e `META.firmware`.
+          3. Rodar `npm test`.
+          4. Atualizar também a skill privada.
+          EOF
+          )
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body "$BODY"
