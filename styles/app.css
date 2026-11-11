@@ -1,0 +1,94 @@
+/* Casca da Bancada Mesh. Só usa os tokens de tokens.css. Textos em rem. */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--fonte-texto);
+  font-size: 1rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+code, kbd, samp, .mono { font-family: var(--fonte-mono); font-variant-numeric: tabular-nums; }
+
+.app { min-height: 100vh; display: flex; flex-direction: column; }
+.app > * { width: 100%; max-width: var(--largura-max); margin-inline: auto; padding-inline: var(--esp-4); }
+
+/* foco visível em tudo */
+:focus-visible { outline: 3px solid var(--azul-tinta); outline-offset: 2px; border-radius: 2px; }
+.conteudo:focus, .titulo:focus { outline: none; }
+.titulo:focus-visible { outline: 3px solid var(--azul-tinta); }
+
+.pular {
+  position: absolute; left: var(--esp-2); top: var(--esp-2);
+  transform: translateY(-300%);
+  background: var(--azul-tinta); color: var(--branco);
+  padding: var(--esp-2) var(--esp-4); border-radius: var(--raio);
+  z-index: 10; text-decoration: none;
+  transition: transform var(--dur-rapida) ease-out;
+}
+.pular:focus { transform: translateY(0); }
+
+a { color: var(--azul-tinta); }
+
+/* cabeçalho */
+.cabecalho { padding-block: var(--esp-4) var(--esp-2); }
+.marca-link { display: inline-flex; align-items: center; gap: var(--esp-3); color: var(--tinta); text-decoration: none; border-radius: var(--raio); }
+.marca { flex: none; }
+.marca-fio { stroke: var(--azul-tinta); stroke-width: 2; stroke-linejoin: round; }
+.marca-no { fill: var(--papel); stroke: var(--azul-tinta); stroke-width: 2.5; }
+.marca-textos { display: flex; flex-direction: column; }
+.marca-nome { font-weight: 700; font-size: 1.375rem; line-height: 1.2; }
+.marca-sub { color: var(--texto-secundario); font-size: 0.9375rem; }
+
+/* indicador de passos */
+.passos-nav { padding-block: var(--esp-2) var(--esp-4); border-bottom: var(--borda); }
+.passos { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--esp-2) var(--esp-4); }
+.passo { display: flex; align-items: center; gap: var(--esp-2); color: var(--texto-secundario); }
+.passo-n {
+  display: inline-grid; place-items: center; width: 1.75rem; height: 1.75rem;
+  border: 2px solid var(--linha); border-radius: 50%;
+  font-family: var(--fonte-mono); font-weight: 600; font-size: 0.875rem;
+  transition: background var(--dur-media) ease, border-color var(--dur-media) ease, color var(--dur-media) ease;
+}
+.passo[aria-current="step"] { color: var(--tinta); font-weight: 700; }
+.passo[aria-current="step"] .passo-n { background: var(--azul-tinta); border-color: var(--azul-tinta); color: var(--branco); }
+.passo-feito .passo-n { border-color: var(--azul-tinta); color: var(--azul-tinta); }
+
+/* conteúdo */
+.conteudo { flex: 1; padding-block: var(--esp-5); }
+.titulo { font-size: 1.625rem; line-height: 1.25; margin: 0 0 var(--esp-3); }
+.texto { max-width: 40rem; margin: 0 0 var(--esp-4); }
+
+.botao {
+  display: inline-block; min-height: 2.75rem; padding: var(--esp-3) var(--esp-4);
+  background: var(--azul-tinta); color: var(--branco);
+  border: 2px solid var(--azul-tinta); border-radius: var(--raio);
+  font: inherit; font-weight: 700; text-decoration: none; cursor: pointer;
+  transition: background var(--dur-rapida) ease, color var(--dur-rapida) ease;
+}
+.botao:hover { background: var(--branco); color: var(--azul-tinta); }
+
+/* região viva da auditoria (Task 13): sem peso visual enquanto vazia */
+.resumo-auditoria:empty { display: none; }
+
+/* rodapé */
+.rodape { padding-block: var(--esp-4) var(--esp-5); border-top: var(--borda); color: var(--texto-secundario); font-size: 0.9375rem; }
+.rodape p { margin: 0 0 var(--esp-1); }
+.rodape-regras { font-family: var(--fonte-mono); font-size: 0.875rem; }
+
+.sem-js { padding: var(--esp-4); max-width: var(--largura-max); margin: 0 auto; }
+
+@media (min-width: 40rem) {
+  .app > * { padding-inline: var(--esp-5); }
+  .titulo { font-size: 2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
