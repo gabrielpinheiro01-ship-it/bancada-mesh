@@ -28,3 +28,8 @@ Os desenhos `assets/svg/drawings/*.svg` ficam **em revisão** até o dono confer
 - ordem dos pontos do TP4056 (agora OUT+, B+, B−, OUT− na saída e IN+, IN− na entrada, conforme a foto `assets/photos/tp4056-dw01.webp`);
 - tamanho do desenho no PDF (página própria, nomes dos pontos com 8–9 pt impressos);
 - cabo da antena (pigtail U.FL→SMA na caixa + trecho coaxial até a antena, para as opções de cabo longo).
+
+## Próxima versão: "Montagem livre" (pedido do usuário, 11/11/2026)
+
+Opção de começar do zero e abrir direto na bancada, escolhendo o papel (repetidor, companion, observer) e as peças do catálogo inteiro. Ficou fora da v1 porque o spec exclui o "simulador genérico" e exige desenho conferido para toda combinação aprovada.
+Proposta: a auditoria roda igual; no lugar do desenho, "sem desenho conferido para esta combinação" (sempre Atenção); o PDF sai sem a página de ligação e com esse aviso na capa. Antes de implementar: spec curto + revisar o risco de falso OK com peças não testadas juntas.
