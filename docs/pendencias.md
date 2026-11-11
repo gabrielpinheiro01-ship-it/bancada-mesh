@@ -21,3 +21,10 @@ no solar), tratadas em outra tarefa.
   um painel "6 V" passa de 7 V em aberto). A tensão do painel de 9 W do repetidor de PT não é declarada.
 - **R5 (projeto 7):** página de onboarding do analyzer (analyzer.letsmesh.net/observer/onboard) deu 403 e não foi
   lida; falta a lista de placas do observer e conferir os brokers atuais.
+
+## Desenhos de montagem em revisão (pedido do usuário, 11/11/2026)
+
+Os desenhos `assets/svg/drawings/*.svg` ficam **em revisão** até o dono conferir. Já foram corrigidos (commit 6181657) e revisados por agente, mas precisam do olho humano antes de publicar:
+- ordem dos pontos do TP4056 (agora OUT+, B+, B−, OUT− na saída e IN+, IN− na entrada, conforme a foto `assets/photos/tp4056-dw01.webp`);
+- tamanho do desenho no PDF (página própria, nomes dos pontos com 8–9 pt impressos);
+- cabo da antena (pigtail U.FL→SMA na caixa + trecho coaxial até a antena, para as opções de cabo longo).
