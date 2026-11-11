@@ -72,7 +72,8 @@ export function companionSteps(state) {
  */
 export function txOptions(state, parts = PARTS) {
   const board = parts[state.parts.placa ?? state.parts.aparelho];
-  const out = board?.pa?.outDbm;
+  // Peças reais guardam o PA em `attrs.pa`; o objeto direto (`pa`) é aceito para peça sintética de teste.
+  const out = (board?.attrs?.pa ?? board?.pa)?.outDbm;
   if (!out) return [22];
   const list = Object.keys(out).map(Number).filter((n) => Number.isFinite(n) && n <= 22);
   return list.length ? list.sort((a, b) => b - a) : [22];

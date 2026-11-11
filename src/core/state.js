@@ -40,7 +40,10 @@ export function swapPart(state, slot, partId) {
   if (partId !== def.default && !def.alternatives.includes(partId)) {
     throw new Error(`Peça ${partId} não vale para o slot ${slot}`);
   }
-  return { ...state, parts: { ...state.parts, [slot]: partId } };
+  const next = { ...state, parts: { ...state.parts, [slot]: partId } };
+  // A nova placa pode não aceitar a potência atual: volta ao padrão 22 (sem falso OK com potência inválida).
+  if (!txOptions(next).includes(next.txDbm)) next.txDbm = 22;
+  return next;
 }
 
 /**
