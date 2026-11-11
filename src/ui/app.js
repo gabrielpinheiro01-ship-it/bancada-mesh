@@ -3,6 +3,7 @@ import { parseRoute, routeGuard } from './router.js';
 import { createState } from '../core/state.js';
 import { PROJECTS } from '../data/projects.js';
 import { mountShell, stepOf, el } from './shell.js';
+import { renderProjectsStep } from './projects-step.js';
 
 let state = null;
 let shell = null;
@@ -23,7 +24,7 @@ function marcador(title, text) {
 // Cada renderizador recebe (root, route, state) e escreve dentro de `root`.
 export const renderers = {
   projetos(root) {
-    root.replaceChildren(...marcador('Escolha um projeto', 'Passo 1 em construção.'));
+    renderProjectsStep(root, () => {}); // a navegação é o próprio link #/bancada/<id>
   },
   bancada(root, route) {
     root.replaceChildren(...marcador('Monte na bancada', `Passo 2 em construção (projeto ${route.projectId}).`));

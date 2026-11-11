@@ -189,3 +189,12 @@ export const PROJECTS = deepFreeze({
     defaultDrawing: null,
   },
 });
+
+// Motivo do "Em breve", em linguagem simples, por código de lacuna (spec §12).
+export const BLOCKER_REASONS = Object.freeze({
+  R1: 'falta confirmar como gravar o firmware nesses aparelhos',
+  R2: 'falta confirmar o tipo e a polaridade da bateria',
+  R3: 'falta medir o consumo do rádio de 1 W',
+  R4: 'falta definir o painel certo para o carregador',
+  R5: 'falta conferir o passo a passo do firmware de observer',
+});

@@ -92,3 +92,29 @@ a { color: var(--azul-tinta); }
     scroll-behavior: auto !important;
   }
 }
+
+/* passo 1: cartões dos projetos (só azul-tinta, tinta e cinzas; dificuldade = preenchido x vazado) */
+.so-leitor { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.cartoes { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr; gap: var(--esp-4); }
+.cartao { display: flex; min-width: 0; }
+.cartao article {
+  display: flex; flex-direction: column; gap: var(--esp-3); width: 100%; min-width: 0;
+  padding: var(--esp-4); background: var(--branco); border: var(--borda); border-radius: var(--raio);
+  overflow-wrap: anywhere;
+}
+.cartao-breve article { background: var(--papel); border-style: dashed; }
+.cartao-nome { margin: 0; font-size: 1.25rem; line-height: 1.3; color: var(--tinta); }
+.cartao-para { margin: 0; }
+.fatos { margin: 0; display: grid; gap: var(--esp-2); }
+.fato-rotulo { color: var(--texto-secundario); font-size: 0.9375rem; }
+.fato-valor { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1); }
+.fatos > .fato-rotulo + .fato-valor { margin-top: calc(var(--esp-1) * -1); }
+.pontos { display: inline-flex; gap: var(--esp-1); }
+.ponto { width: 0.75rem; height: 0.75rem; border-radius: 50%; border: 2px solid var(--azul-tinta); background: transparent; box-sizing: border-box; }
+.ponto-cheio { background: var(--azul-tinta); }
+.cartao-acao { margin-top: auto; text-align: center; position: relative; }
+.botao:focus-visible { outline: 3px solid var(--tinta); outline-offset: 2px; }
+button.botao:disabled { background: var(--linha); border-color: var(--texto-secundario); color: var(--tinta); cursor: not-allowed; }
+.cartao-motivo { margin: 0; color: var(--texto-secundario); font-size: 0.9375rem; }
+@media (min-width: 37.5rem) { .cartoes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 62.5rem) { .cartoes { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
