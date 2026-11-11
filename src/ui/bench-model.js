@@ -53,6 +53,14 @@ export function summaryLevel({ bad, warn }) {
   return 'ok';
 }
 
+/**
+ * Sem desenho conferido para a combinação, a montagem não pode ser dada como certa: o resumo ganha
+ * 1 ponto de atenção (e nunca fica OK). Devolve um objeto novo.
+ */
+export function summaryWithDrawing({ bad, warn }, hasDrawing) {
+  return { bad, warn: hasDrawing ? warn : warn + 1 };
+}
+
 /** Número digitado de volta para o campo: 4.2 -> "4,2"; 9 -> "9". */
 export function numText(n) {
   return String(n).replace('.', ',');

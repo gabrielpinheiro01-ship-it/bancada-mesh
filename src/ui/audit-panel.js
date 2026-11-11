@@ -77,7 +77,7 @@ export function suggestLink(kind, id) {
     return null;
   }
   const href = links.form ?? links.github;
-  return href ? el('a', { class: 'link-erro', href, target: '_blank', rel: 'noopener noreferrer' }, 'Achei um erro') : null;
+  return href ? el('a', { class: 'link-erro', 'data-focus-key': `erro:${kind}:${id}`, href, target: '_blank', rel: 'noopener noreferrer' }, 'Achei um erro') : null;
 }
 
 /** Item curto (nível + título + por que importa), usado no detalhe da peça. */

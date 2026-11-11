@@ -196,11 +196,11 @@ export function renderDetail(model, { photoOpen }, act) {
     btn.addEventListener('click', () => act.togglePhoto());
     kids.push(el('p', { class: 'detalhe-acao' }, btn));
     if (photoOpen) {
-      kids.push(el('figure', { class: 'foto', id: 'foto-peca' },
+      kids.push(el('figure', { class: 'foto', id: 'foto-peca', 'data-focus-key': 'foto-figura' },
         el('img', { src: new URL(model.photo.file, ROOT).href, alt: `Foto real: ${model.name}`, decoding: 'async' }),
         el('figcaption', {},
           `Foto: ${model.photo.credit}. Licença ${model.photo.license}. `,
-          el('a', { href: model.photo.sourceUrl, target: '_blank', rel: 'noopener noreferrer' }, 'Página de origem da foto'))));
+          el('a', { href: model.photo.sourceUrl, 'data-focus-key': 'foto-origem', target: '_blank', rel: 'noopener noreferrer' }, 'Página de origem da foto'))));
     }
   } else {
     kids.push(el('p', { class: 'detalhe-semfoto' }, 'Sem foto de licença livre: só a ilustração.'));

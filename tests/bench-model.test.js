@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  LEVEL_WORD, worstBySlot, slotLevels, summaryText, summaryLevel, energyBars, dddOptions, ufOptions,
+  LEVEL_WORD, worstBySlot, slotLevels, summaryText, summaryLevel, summaryWithDrawing, energyBars, dddOptions, ufOptions,
   numText, badgeBox, pickBadgeBox, textBox, fieldTarget, itemActionLabel, visibleFields, catalogGroups, nextTabIndex, TABS, detailModel,
 } from '../src/ui/bench-model.js';
 import { createState, swapPart, setField } from '../src/core/state.js';
@@ -263,4 +263,18 @@ test('detailModel: nome, dica, itens do slot e foto (ou null)', () => {
   assert.equal(p.photo.license, 'CC BY-SA 4.0');
   assert.match(p.photo.file, /^assets\/photos\/.+\.webp$/);
   assert.equal(detailModel(createState(4), 'inexistente', []), null);
+});
+
+test('summaryWithDrawing: sem desenho conferido conta 1 ponto de atenção a mais e nunca fica OK', () => {
+  assert.deepEqual(summaryWithDrawing({ bad: 0, warn: 0 }, false), { bad: 0, warn: 1 });
+  assert.equal(summaryLevel(summaryWithDrawing({ bad: 0, warn: 0 }, false)), 'warn');
+  assert.equal(summaryText(summaryWithDrawing({ bad: 0, warn: 0 }, false)), 'Nenhum problema · 1 ponto de atenção');
+  assert.deepEqual(summaryWithDrawing({ bad: 2, warn: 3 }, false), { bad: 2, warn: 4 });
+});
+
+test('summaryWithDrawing: com desenho devolve a contagem igual, sem alterar a entrada', () => {
+  const sums = { bad: 1, warn: 2 };
+  assert.deepEqual(summaryWithDrawing(sums, true), { bad: 1, warn: 2 });
+  summaryWithDrawing(sums, false);
+  assert.deepEqual(sums, { bad: 1, warn: 2 });
 });

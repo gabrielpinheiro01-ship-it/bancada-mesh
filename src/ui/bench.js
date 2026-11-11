@@ -7,7 +7,7 @@ import { drawingFor } from '../core/drawing.js';
 import { PROJECTS } from '../data/projects.js';
 import { el } from './shell.js';
 import {
-  TABS, nextTabIndex, summaryText, summaryLevel, energyBars, slotLevels, worstBySlot, fieldTarget,
+  TABS, nextTabIndex, summaryText, summaryLevel, summaryWithDrawing, energyBars, slotLevels, worstBySlot, fieldTarget,
   visibleFields, catalogGroups, detailModel,
 } from './bench-model.js';
 import { renderCatalog } from './catalog.js';
@@ -205,9 +205,10 @@ const act = {
 
 // ---------- montagem da tela ----------
 
-function liveText(sums, items) {
+function liveText(sums, items, hasDrawing) {
   const bad = items.filter((i) => i.level === 'bad').map((i) => i.title);
-  return `Auditoria: ${summaryText(sums)}.${bad.length ? ` Problema: ${bad.join('; ')}.` : ''}`;
+  const semDesenho = hasDrawing ? '' : ' Atenção: sem desenho conferido para esta combinação.';
+  return `Auditoria: ${summaryText(sums)}.${bad.length ? ` Problema: ${bad.join('; ')}.` : ''}${semDesenho}`;
 }
 
 function writeLive(text) {
@@ -218,7 +219,7 @@ function writeLive(text) {
 function header(project, sums) {
   const level = summaryLevel(sums);
   return el('div', { class: 'bancada-topo' },
-    el('h1', { class: 'titulo', tabindex: '-1' }, 'Monte na bancada'),
+    el('h1', { class: 'titulo', tabindex: '-1', 'data-focus-key': 'titulo' }, 'Monte na bancada'),
     el('p', { class: 'bancada-projeto' }, 'Projeto: ', el('strong', {}, project.name)),
     el('p', { class: 'texto bancada-intro' }, 'A lista inicial já vem sem problemas. Troque uma peça só se for usar outra: a auditoria confere na hora.'),
     el('div', { class: `bancada-resumo resumo-${level}` },
@@ -226,8 +227,8 @@ function header(project, sums) {
         levelIcon(level, 24),
         el('span', {}, el('span', { class: 'so-leitor' }, 'Auditoria: '), summaryText(sums))),
       el('p', { class: 'bancada-acoes' },
-        el('a', { class: 'botao', href: '#/pdf' }, 'Próximo: baixar o PDF'),
-        el('a', { class: 'link-trocar', href: '#/' }, 'Trocar de projeto'))));
+        el('a', { class: 'botao', href: '#/pdf', 'data-focus-key': 'proximo-pdf' }, 'Próximo: baixar o PDF'),
+        el('a', { class: 'link-trocar', href: '#/', 'data-focus-key': 'trocar-projeto' }, 'Trocar de projeto'))));
 }
 
 function tabs() {
@@ -255,13 +256,13 @@ function panel(id, ...kids) {
   return el('section', { class: `painel painel-${id}`, id: `painel-${id}`, role: 'tabpanel', 'aria-labelledby': `aba-${id}` }, ...kids);
 }
 
-function buildView(state, items, sums, energy, newly) {
+function buildView(state, items, sums, energy, newly, drawingId) {
   const project = PROJECTS[state.projectId];
   const detail = renderDetail(ui.selected ? detailModel(state, ui.selected, items) : null, ui, act);
   const montagem = [
     el('h2', { class: 'painel-titulo' }, 'Montagem'),
     el('p', { class: 'painel-dica' }, 'Toque numa peça do desenho para ver o detalhe dela.'),
-    renderAssembly({ state, drawingId: drawingFor(state, items), levels: slotLevels(items, ui.selected), selected: ui.selected, newly, act }),
+    renderAssembly({ state, drawingId, levels: slotLevels(items, ui.selected), selected: ui.selected, newly, act }),
   ];
   if (detail) montagem.push(detail);
   montagem.push(renderFields({
@@ -285,13 +286,14 @@ function paint(rerender) {
   const project = PROJECTS[state.projectId];
   if (ui.selected && !project.slots[ui.selected]) ui.selected = null;
   const items = runAudit(state);
-  const sums = summarize(items);
+  const drawingId = drawingFor(state, items);
+  const sums = summaryWithDrawing(summarize(items), drawingId != null);
   const energy = buildRuleCtx(state).energy;
 
   let wanted = ui.pendingFocus;
   if (rerender && !wanted) {
     const a = document.activeElement;
-    if (a && a !== document.body && root.contains(a)) wanted = a.closest('[data-focus-key]')?.getAttribute('data-focus-key') ?? null;
+    if (a && a !== document.body && root.contains(a)) wanted = a.closest('[data-focus-key]')?.getAttribute('data-focus-key') ?? 'resumo';
   }
   const scroll = ui.scroll;
   ui.pendingFocus = null;
@@ -305,8 +307,8 @@ function paint(rerender) {
   const newly = new Set(prev ? Object.keys(marks).filter((s) => !prev[s] || (prev[s] === 'warn' && marks[s] === 'bad')) : []);
   ui.prevMarks = marks;
 
-  root.replaceChildren(buildView(state, items, sums, energy, newly));
-  writeLive(liveText(sums, items));
+  root.replaceChildren(buildView(state, items, sums, energy, newly, drawingId));
+  writeLive(liveText(sums, items, drawingId != null));
   ui.alertField = null;
   if (!rerender) return; // a primeira pintura é da rota: o app.js põe o foco no título
 
@@ -314,7 +316,7 @@ function paint(rerender) {
   if (!wanted) return;
   const visible = (n) => n.getClientRects().length > 0;
   const find = (key) => [...root.querySelectorAll('[data-focus-key]')].find((n) => n.getAttribute('data-focus-key') === key && visible(n));
-  const target = find(wanted) ?? find('resumo');
+  const target = find(wanted) ?? find('resumo') ?? find('titulo') ?? root.querySelector('h1');
   if (!target) return;
   target.focus({ preventScroll: true });
   if (target instanceof HTMLInputElement && target.type === 'text') {
